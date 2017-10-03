@@ -7,7 +7,7 @@
 launch <- function() {
   appDir <- system.file("shiny-examples", "ascr", package = "ascr")
   if (appDir == "") {
-    stop("Looks like the ascr app is not available. Try re-installing the `ascr`." package, call. = FALSE)
+    stop("Looks like the ascr app is not available. Try re-installing the `ascr`package." , call. = FALSE)
   }
 
   runApp(appDir, display.mode = "normal")
