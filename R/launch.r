@@ -2,7 +2,7 @@
 #' looks for the ascr app within the package directory,
 #' no arguments required.
 
-#' @import shiny runApp
+#' @importFrom shiny runApp
 #' @export
 launch <- function() {
   appDir <- system.file("shiny-examples", "ascr", package = "ascr")

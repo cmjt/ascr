@@ -24,11 +24,11 @@ Imports:
     secr,
     stats,
     truncnorm,
-    utils
+    utils,
+    shiny
 Suggests:
     knitr,
-    xtable,
-    shiny
+    xtable
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Description: This package allows for the fitting of spatial capture-recapture
