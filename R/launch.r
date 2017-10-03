@@ -10,5 +10,5 @@ launch <- function() {
     stop("Looks like the ascr app is not available. Try re-installing the `ascr`package." , call. = FALSE)
   }
 
-  runApp(appDir, display.mode = "normal")
+  runApp(appDir, display.mode = "normal",launch.browser = TRUE)
 }
