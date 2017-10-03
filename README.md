@@ -40,6 +40,15 @@ This can take a little while.
 
 * This package has not been widely tested on all platforms. If there are any errors with the installation or in the above tests please get in touch using the contact details below.
 
+## Shiny application
+
+The ascr package includes a Shiny application that may be used to facilitate data formatting and model fitting. This Shiny aplication was dveloped in partnership with ICUN SSC Primate specialist group section on small apes.
+
+An online manual may be found [here](https://cmjt.github.io/ascr/)
+
+A pdf manual may be downloaded [here](https://cmjt.github.io/ascr/)
+
+
 ## References
 
 Almost all methods presented in the references below have been implemented in the ascr package:
