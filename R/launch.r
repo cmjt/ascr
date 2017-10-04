@@ -1,10 +1,10 @@
 #' Function to launch ascr shniy application.
-#' looks for the ascr app within the package directory,
-#' no arguments required.
+#' Looks for the ascr app within the package directory.
+#' No arguments are required.
 
 #' @importFrom shiny runApp
 #' @export
-launch <- function() {
+launch.ui <- function() {
   appDir <- system.file("shiny-examples", "ascr", package = "ascr")
   if (appDir == "") {
     stop("Looks like the ascr app is not available. Try re-installing the `ascr`package." , call. = FALSE)
