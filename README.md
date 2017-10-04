@@ -42,7 +42,7 @@ This can take a little while.
 
 ## Shiny application
 
-The ascr package includes a Shiny application that may be used to facilitate data formatting and model fitting. This Shiny aplication was dveloped in partnership with ICUN SSC primate specialist group section on small apes.
+The ascr package includes a Shiny application that may be used to facilitate data formatting and model fitting. This Shiny aplication was dveloped in partnership with IUCN SSC primate specialist group section on small apes.
 
 An online manual may be found [here](https://cmjt.github.io/ascr/)
 
