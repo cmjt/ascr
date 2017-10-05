@@ -9,11 +9,11 @@
 
 library(shiny)
 
-# Define UI for application that draws a histogram
+
 shinyUI(fluidPage(
 
   # App title ----
-  titlePanel("Upload Data Files"),
+  titlePanel("acoustic spatial capture-recapture (ascr)"),
 
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -22,7 +22,14 @@ shinyUI(fluidPage(
     sidebarPanel(
 
       # Input: Select a file ----
-      fileInput("file1", "Choose CSV File",
+      fileInput("file1", "Choose CSV File of trap locations",
+                multiple = TRUE,
+                accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv")),
+      
+      # Input: Select a file ----
+      fileInput("file2", "Choose CSV File of detections",
                 multiple = TRUE,
                 accept = c("text/csv",
                          "text/comma-separated-values,text/plain",
@@ -56,17 +63,27 @@ shinyUI(fluidPage(
                    choices = c(Head = "head",
                                All = "all"),
                    selected = "head")
+      
 
     ),
 
     # Main panel for displaying outputs ----
     mainPanel(
-
-      # Output: Data file ----
-      tableOutput("contents")
-
+        tabsetPanel(type = "tabs",
+                    tabPanel("Data",
+                             tabsetPanel(
+                                 tabPanel("Traps",tableOutput("traps")),
+                                 tabPanel("Detections", tableOutput("detections")))),
+                    tabPanel("Mask",print("TODO Mask plot")),
+                    tabPanel("Model",print("TODO Model params")),
+                    tabPanel("Report",print("TODO report"))        
+                    )
+                    )
     )
-
   )
 )
-)
+
+      # Output: Data file ----
+        ## tableOutput("traps"),
+        ## tableOutput("detections")
+

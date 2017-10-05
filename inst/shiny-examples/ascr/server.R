@@ -1,18 +1,12 @@
 #
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
+
 
 library(shiny)
 
-# Define server logic required to draw a histogram
+
 shinyServer(function(input, output) {
 
-  output$contents <- renderTable({
+  output$traps <- renderTable({
 
     # input$file1 will be NULL initially. After the user selects
     # and uploads a file, head of that data file by default,
@@ -20,18 +14,40 @@ shinyServer(function(input, output) {
 
     req(input$file1)
 
-    df <- read.csv(input$file1$datapath,
+    traps <- read.csv(input$file1$datapath,
+             header = input$header,
+             sep = input$sep,
+             quote = input$quote)
+    if(input$disp == "head") {
+        return(head(traps))
+    }
+    else {
+        return(traps)
+    }
+
+  },
+  striped = TRUE)
+    output$detections <- renderTable({
+
+    # input$file2 will be NULL initially. After the user selects
+    # and uploads a file, head of that data file by default,
+    # or all rows if selected, will be shown.
+
+    req(input$file2)
+
+    detections <- read.csv(input$file2$datapath,
              header = input$header,
              sep = input$sep,
              quote = input$quote)
 
     if(input$disp == "head") {
-      return(head(df))
+        return(head(detections))
     }
     else {
-      return(df)
+        return(detections)
     }
 
-  })
+    },
+    striped = TRUE)
 
 })
