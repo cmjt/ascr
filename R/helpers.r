@@ -466,3 +466,19 @@ get.bias <- function(fit, pars = "fitted", mce = FALSE){
     out
 }
 
+#' Function to turn data frame into capture history matrix
+#' @param data A data.frame with at least the following named columns:
+#' \code{occasion}, numeric day or time index;
+#' \code{post}, a factor vector of post (trap) names.
+#' @export 
+get.capt.hist <- function(data){
+    occasion <- data$occasion
+    post <- data$post
+    group <- 1:nrow(data)
+    cantor <- 1/2 * (occasion + group)* (occasion + group + 1) + group
+    capt.hist <- table(cantor, post,dnn = list("",""))
+    capt.hist <- capt.hist[match(unique(cantor),rownames(capt.hist)), ]
+    capt.hist <- matrix(capt.hist,ncol = length(table(post)),byrow = FALSE)
+    rownames(capt.hist) <- NULL
+    capt.hist
+}
