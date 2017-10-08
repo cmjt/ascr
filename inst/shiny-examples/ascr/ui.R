@@ -21,24 +21,24 @@ shinyUI(fluidPage(
     # Sidebar panel for inputs ----
     sidebarPanel(
 
-      # Input: Select a file ----
+      # Input: Select a csv file of trap locations
       fileInput("file1", "Choose CSV File of trap locations",
                 multiple = TRUE,
                 accept = c("text/csv",
                          "text/comma-separated-values,text/plain",
                          ".csv")),
       
-      # Input: Select a file ----
+      # Input: Select a csv file of detections
       fileInput("file2", "Choose CSV File of detections",
                 multiple = TRUE,
                 accept = c("text/csv",
                          "text/comma-separated-values,text/plain",
                          ".csv")),
 
-      # Horizontal line ----
+      # Horizontal line to separate file choice from options
       tags$hr(),
 
-      # Input: Checkbox if file has header ----
+      # Input: Checkbox if file1 has header ----
       checkboxInput("header", "Header", TRUE),
 
       # Input: Select separator ----
@@ -55,35 +55,50 @@ shinyUI(fluidPage(
                                "Single Quote" = "'"),
                    selected = '"'),
 
-      # Horizontal line ----
-      tags$hr(),
 
       # Input: Select number of rows to display ----
       radioButtons("disp", "Display",
                    choices = c(Head = "head",
                                All = "all"),
-                   selected = "head")
-      
-
-    ),
-
+                   selected = "head"),
+    # Two horizontal lines before mask options
+    tags$hr(),
+    tags$hr(),
+    # Input: integer of mask buffer in meters
+    sliderInput("buffer", "Choose mask buffer (m):",
+                min = 0, max = 10000,
+                value = 1000),
+    # Input: integer of mask spacing in meters
+    sliderInput("spacing", "Choose mask spacing (m):",
+                min = 0, max = 1000,
+                value = 250),
+    # Two horizontal lines before model options
+    tags$hr(),
+    tags$hr(),
+    # select box for detetion functions
+    selectInput("select", label = h3("Chose a detection function"), 
+                choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th', "log-link threshold" = 'lth'), 
+                selected = "hn")
+  ),
     # Main panel for displaying outputs ----
     mainPanel(
         tabsetPanel(type = "tabs",
                     tabPanel("Data",
                              tabsetPanel(
-                                 tabPanel("Traps",tableOutput("traps")),
+                                 tabPanel("Traps",
+                                          fluidRow(
+                                              column(width = 4,
+                                                     h2(""),
+                                                     tableOutput("traps")),
+                                              column(width = 4,
+                                                     h2(""),
+                                                     plotOutput("trapsPlot"))
+                                          )),
                                  tabPanel("Detections", tableOutput("detections")))),
-                    tabPanel("Mask",print("TODO Mask plot")),
-                    tabPanel("Model",print("TODO Model params")),
+                    tabPanel("Mask",plotOutput("maskPlot")),
+                    tabPanel("Model",tableOutput("coefs")),
                     tabPanel("Report",print("TODO report"))        
-                    )
                     )
     )
   )
-)
-
-      # Output: Data file ----
-        ## tableOutput("traps"),
-        ## tableOutput("detections")
-
+))
