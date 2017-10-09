@@ -110,7 +110,8 @@ shinyServer(function(input, output) {
                         fix = list(g0 = 1))
         show.detsurf(fit)
     })
-     # Location estimate plot
+   
+    # Location estimate plot
     output$locationPlot <- renderPlot({
         detections <- read.csv(input$file2$datapath,
              header = input$header,

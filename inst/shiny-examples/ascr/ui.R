@@ -78,7 +78,15 @@ shinyUI(fluidPage(
     # select box for detetion functions
     selectInput("select", label = h3("Chose a detection function"), 
                 choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th', "log-link threshold" = 'lth'), 
-                selected = "hn")
+                selected = "hn"),
+     # Two horizontal lines before choosing call number for estimated group location
+    tags$hr(),
+    tags$hr(),
+    # Input: integer of call number to estimate group location 
+    sliderInput("call.num", "Choose call number:",
+                min = 1, max = 38,
+                value = 1)
+    
   ),
     # Main panel for displaying outputs ----
     mainPanel(
@@ -96,7 +104,18 @@ shinyUI(fluidPage(
                                           )),
                                  tabPanel("Detections", tableOutput("detections")))),
                     tabPanel("Mask",plotOutput("maskPlot")),
-                    tabPanel("Model",tableOutput("coefs")),
+                    tabPanel("Model",
+                             fluidRow(
+                                 column(width = 3,
+                                        h2("Parameter estimates"),
+                                        tableOutput("coefs")),
+                                 column(width = 4,
+                                        h2("Detection surface"),
+                                        plotOutput("detectionPlot")),
+                                 column(width = 5,
+                                        h2("Estimated location of chosen call"),
+                                        plotOutput("locationPlot"))
+                                 )),
                     tabPanel("Report",print("TODO report"))        
                     )
     )
