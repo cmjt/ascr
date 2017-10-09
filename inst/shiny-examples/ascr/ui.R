@@ -76,9 +76,25 @@ shinyUI(fluidPage(
     tags$hr(),
     tags$hr(),
     # select box for detetion functions
-    selectInput("select", label = h3("Chose a detection function"), 
+    selectInput("select", label = "Chose a detection function", 
                 choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th', "log-link threshold" = 'lth'), 
                 selected = "hn"),
+    # check box conditional on value of detfn chosen
+    uiOutput("fixedParamSelection"),
+    # fix g0 to what value
+    uiOutput("fixedg0"),
+    # fix sigma to what value
+    uiOutput("fixedsigma"),
+     # fix z to what value
+    uiOutput("fixedz"),
+    # fix shape to what value
+    uiOutput("fixedshape"),
+    # fix scale to what value
+    uiOutput("fixedscale"),
+    # fix shape.1 to what value
+    uiOutput("fixedshape.1"),
+    # fix shape.2 to what value
+    uiOutput("fixedshape.2"),
      # Two horizontal lines before choosing call number for estimated group location
     tags$hr(),
     tags$hr(),

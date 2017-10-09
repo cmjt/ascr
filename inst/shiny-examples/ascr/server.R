@@ -71,8 +71,50 @@ shinyServer(function(input, output) {
         mask <- create.mask(traps,input$buffer,input$spacing)
         plot(mask)
     })
-    
-    # model fit and coeficients
+    # chose which parameters of which detection function to fit, conditional numeric input for fixing param values
+    output$fixedParamSelection <- renderUI({
+        params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale","shape.1","shape.2","scale"),
+                            c("hn","hn","hr","hr","hr","th","th","lth","lth","lth"))
+        checkboxGroupInput("parameter", "Fix which parameters:",
+                           choices = as.character(params.fix[params.fix[,2]==input$select,1]))
+       
+    })
+    output$fixedg0 <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('g0')",       
+                         numericInput("g0","fix g0 to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedsigma <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('sigma')",       
+                         numericInput("sigma","fix sigma to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedz <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('z')",       
+                         numericInput("z","fix z to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedshape <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('shape')",       
+                         numericInput("shape","fix shape to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedscale <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('scale')",       
+                         numericInput("scale","fix scale to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedshape.1 <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('shape.1')",       
+                         numericInput("shape.1","fix shape.1 to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    output$fixedshape.2 <- renderUI({
+        conditionalPanel(condition = "input.parameter.includes('shape.2')",       
+                         numericInput("shape.2","fix shape.2 to:",value=1,min=1,max=100,step=1)
+                         )
+    })
+    # Fit model based on inputs of user and output parameter estimates and plots
     output$coefs <- renderTable({
         detections <- read.csv(input$file2$datapath,
              header = input$header,
