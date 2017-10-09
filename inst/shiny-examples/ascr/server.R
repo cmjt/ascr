@@ -127,8 +127,13 @@ shinyServer(function(input, output) {
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
         capt.hist <-list(bincapt = get.capt.hist(detections))
+        param.fix <- input$parameter
+        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                             scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+        idx <- match(param.fix,names(param.fix.value))
+        fix <- param.fix.value[idx]
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = list(g0 = 1))
+                        fix = fix)
         res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
         rownames(res) <- names(coef(fit))
         return(res)
@@ -146,8 +151,13 @@ shinyServer(function(input, output) {
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
         capt.hist <-list(bincapt = get.capt.hist(detections))
+        param.fix <- input$parameter
+        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                             scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+        idx <- match(param.fix,names(param.fix.value))
+        fix <- param.fix.value[idx]
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = list(g0 = 1))
+                        fix = fix)
         show.detsurf(fit)
     })
    
@@ -164,8 +174,13 @@ shinyServer(function(input, output) {
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
         capt.hist <-list(bincapt = get.capt.hist(detections))
+        param.fix <- input$parameter
+        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                             scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+        idx <- match(param.fix,names(param.fix.value))
+        fix <- param.fix.value[idx]
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = list(g0 = 1))
+                        fix = fix)
         if(input$call.num > nrow(capt.hist$bincapt)){
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
             text(1,1,paste("There are only",nrow(capt.hist$bincapt),"calls",collapse = " "),col = "red",cex = 2)
