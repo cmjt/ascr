@@ -93,6 +93,40 @@ shinyServer(function(input, output) {
         rownames(res) <- names(coef(fit))
         return(res)
     },rownames = TRUE)
+    # Detection function plot
+    output$detectionPlot <- renderPlot({
+        detections <- read.csv(input$file2$datapath,
+             header = input$header,
+             sep = input$sep,
+             quote = input$quote)
+        traps <- read.csv(input$file1$datapath,
+                          header = input$header,
+                          sep = input$sep,
+                          quote = input$quote)
+        traps <- as.matrix(cbind(traps$x,traps$y))
+        mask <- create.mask(traps,input$buffer,input$spacing)
+        capt.hist <-list(bincapt = get.capt.hist(detections))
+        fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                        fix = list(g0 = 1))
+        show.detsurf(fit)
+    })
+     # Location estimate plot
+    output$locationPlot <- renderPlot({
+        detections <- read.csv(input$file2$datapath,
+             header = input$header,
+             sep = input$sep,
+             quote = input$quote)
+        traps <- read.csv(input$file1$datapath,
+                          header = input$header,
+                          sep = input$sep,
+                          quote = input$quote)
+        traps <- as.matrix(cbind(traps$x,traps$y))
+        mask <- create.mask(traps,input$buffer,input$spacing)
+        capt.hist <-list(bincapt = get.capt.hist(detections))
+        fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                        fix = list(g0 = 1))
+        locations(fit, input$call.num,levels = c(0.50, 0.90, 0.95))
+        })
     
     
 })
