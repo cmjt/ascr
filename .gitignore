@@ -3,3 +3,9 @@ results/
 package-build/
 HELP-release.txt
 docs/index.Rmd
+src/RcppExports.o
+src/ascr.so
+src/block.o
+src/funs.o
+src/secr_nll.o
+
