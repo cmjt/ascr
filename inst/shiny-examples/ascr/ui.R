@@ -83,8 +83,8 @@ shinyUI(fluidPage(
     tags$hr(),
     tags$hr(),
     # Input: integer of call number to estimate group location 
-    sliderInput("call.num", "Choose call number:",
-                min = 1, max = 38,
+    numericInput("call.num", "Choose call number:",
+                min = 1, max = 1000,step = 1,
                 value = 1)
     
   ),

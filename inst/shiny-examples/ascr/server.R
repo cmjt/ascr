@@ -1,5 +1,3 @@
-#
-
 
 library(shiny)
 library(ascr)
@@ -126,6 +124,7 @@ shinyServer(function(input, output) {
         capt.hist <-list(bincapt = get.capt.hist(detections))
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
                         fix = list(g0 = 1))
+        
         locations(fit, input$call.num,levels = c(0.50, 0.90, 0.95))
         })
     
