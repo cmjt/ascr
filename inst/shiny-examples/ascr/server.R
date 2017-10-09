@@ -69,7 +69,7 @@ shinyServer(function(input, output) {
                           quote = input$quote)
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
-        plot(mask)
+        plot.mask(mask,traps)
     })
     # chose which parameters of which detection function to fit, conditional numeric input for fixing param values
     output$fixedParamSelection <- renderUI({

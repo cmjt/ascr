@@ -482,3 +482,12 @@ get.capt.hist <- function(data){
     rownames(capt.hist) <- NULL
     capt.hist
 }
+#' Function to plot mask along with trap locations in a 'tidy' presentable manner
+#' @param mask mask object from \code{create.mask}
+#' @param traps a matrix of trap locations used to create the \link{mask}
+#' @export
+
+plot.mask <- function(mask = NULL,traps = NULL){
+    plot(mask,asp = 1,pch = 20,col = "grey",xlab = "Longitude",ylab = "Latitude")
+    points(traps,cex = 2,pch = 4,lwd = 3)
+}
