@@ -89,11 +89,10 @@ shinyServer(function(input, output) {
         capt.hist <-list(bincapt = get.capt.hist(detections))
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
                         fix = list(g0 = 1))
-        coefs <- summary(fit)$coefs
-        coefs.se <- summary(fit)$coefs.se
-        res <- data.frame(coefs,coefs.se)
+        res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
+        rownames(res) <- names(coef(fit))
         return(res)
-    })
+    },rownames = TRUE)
     
     
 })
