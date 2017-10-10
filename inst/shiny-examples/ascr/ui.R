@@ -132,10 +132,10 @@ shinyUI(fluidPage(
                              fluidRow(
                                  column(width = 3,
                                         h3(""),
-                                        tableOutput("coefs")),
+                                        withSpinner(tableOutput("coefs"))),
                                  column(width = 9,
                                         h3(""),
-                                        plotOutput("detectionPlot"))
+                                        withSpinner(plotOutput("detectionPlot")))
                                  ))     
                     )
     )

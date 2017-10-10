@@ -29,7 +29,8 @@ Suggests:
     knitr,
     xtable,
     shiny,
-    rmarkdown
+    rmarkdown,
+    shinycssloaders
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Description: This package allows for the fitting of spatial capture-recapture

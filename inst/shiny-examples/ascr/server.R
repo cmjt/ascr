@@ -1,6 +1,7 @@
 
 library(shiny)
 library(ascr)
+library(shinycssloaders)
 
 
 shinyServer(function(input, output) {
