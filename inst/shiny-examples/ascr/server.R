@@ -141,13 +141,18 @@ shinyServer(function(input, output) {
                              scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
         idx <- match(param.fix,names(param.fix.value))
         fix <- param.fix.value[idx]
-        fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = fix)
-        res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
-        rownames(res) <- names(coef(fit))
-        return(res)
+        fit <- NULL
+        fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                                  fix = fix)},
+                        warning = function(w) print("fit.ascr convergence issues"))
+        if(class(fit)[1]=="ascr"){
+            res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
+            rownames(res) <- names(coef(fit))
+            return(res)
+        }
+        
     },rownames = TRUE)
-    # Detection function plots and location estimate plots
+                                        # Detection function plots and location estimate plots
     output$detectionPlot <- renderPlot({
         req(input$file1)
         req(input$file2)
@@ -167,20 +172,27 @@ shinyServer(function(input, output) {
                              scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
         idx <- match(param.fix,names(param.fix.value))
         fix <- param.fix.value[idx]
-        fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = fix)
-        if(input$call.num > nrow(capt.hist$bincapt)){
-            layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-            show.detsurf(fit)
-            plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-            text(1,1,paste("There are only",nrow(capt.hist$bincapt),"calls",collapse = " "),col = "red",cex = 2)
-            show.detfn(fit)
+        fit <- NULL
+        fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                                  fix = fix)},
+                        warning = function(w) print("fit.ascr convergence issues"))
+        if(class(fit)[1]=="ascr"){
+            if(input$call.num > nrow(capt.hist$bincapt)){
+                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                show.detsurf(fit)
+                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+                text(1,1,paste("There are only",nrow(capt.hist$bincapt),"calls",collapse = " "),col = "red",cex = 2)
+                show.detfn(fit)
+            }else{
+                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                show.detsurf(fit)
+                locations(fit,input$call.num)
+                legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                show.detfn(fit)
+            }
         }else{
-            layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-            show.detsurf(fit)
-            locations(fit,input$call.num)
-            legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
-            show.detfn(fit)
+            plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+            text(1,1,paste("convergence issues"),col = "red",cex = 2)
         }
     },width = 700,height = 700)
 })
