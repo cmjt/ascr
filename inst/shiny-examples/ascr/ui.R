@@ -102,6 +102,10 @@ shinyUI(fluidPage(
     numericInput("call.num", "Choose call number:",
                 min = 1, max = 1000,step = 1,
                 value = 1),
+    # horizontal line  before action button
+    actionButton("fit", "Fit Model"),
+    br(),
+    p("The model will not update until this button is clicked."),
     # Two horizontal lines before download button
     tags$hr(),
     tags$hr(),
