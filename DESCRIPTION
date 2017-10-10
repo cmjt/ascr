@@ -28,7 +28,8 @@ Imports:
 Suggests:
     knitr,
     xtable,
-    shiny
+    shiny,
+    rmarkdown
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Description: This package allows for the fitting of spatial capture-recapture
