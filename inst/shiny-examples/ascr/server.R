@@ -177,6 +177,7 @@ shinyServer(function(input, output) {
                                   fix = fix)},
                         warning = function(w) print("fit.ascr convergence issues"))
         if(class(fit)[1]=="ascr"){
+            validate(need(input$call.num,"please provide a call number"))
             if(input$call.num > nrow(capt.hist$bincapt)){
                 layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
                 show.detsurf(fit)
