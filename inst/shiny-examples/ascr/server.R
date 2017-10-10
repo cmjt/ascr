@@ -17,6 +17,7 @@ shinyServer(function(input, output) {
              header = input$header,
              sep = input$sep,
              quote = input$quote)
+   
     if(input$disp == "head") {
         return(head(traps))
     }
@@ -122,6 +123,8 @@ shinyServer(function(input, output) {
     })
     # Fit model based on inputs of user and output parameter estimates and plots
     output$coefs <- renderTable({
+        req(input$file1)
+        req(input$file2)
         detections <- read.csv(input$file2$datapath,
              header = input$header,
              sep = input$sep,
@@ -146,6 +149,8 @@ shinyServer(function(input, output) {
     },rownames = TRUE)
     # Detection function plots and location estimate plots
     output$detectionPlot <- renderPlot({
+        req(input$file1)
+        req(input$file2)
         detections <- read.csv(input$file2$datapath,
              header = input$header,
              sep = input$sep,
