@@ -123,13 +123,13 @@ shinyUI(fluidPage(
                     tabPanel("Model",
                              fluidRow(
                                  column(width = 3,
-                                        h2("Parameter estimates"),
+                                        "Parameter estimates",
                                         tableOutput("coefs")),
                                  column(width = 4,
-                                        h2("Detection surface"),
+                                        "Detection surface",
                                         plotOutput("detectionPlot")),
                                  column(width = 5,
-                                        h2("Estimated location of chosen call"),
+                                        "Estimated location of chosen call",
                                         plotOutput("locationPlot"))
                                  )),
                     tabPanel("Report",print("TODO report"))        

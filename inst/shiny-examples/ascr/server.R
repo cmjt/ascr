@@ -75,7 +75,8 @@ shinyServer(function(input, output) {
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
         plot.mask(mask,traps)
-    })
+        
+    },width = 500, height = 500)
     # chose which parameters of which detection function to fit, conditional numeric input for fixing param values
     output$fixedParamSelection <- renderUI({
         params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale","shape.1","shape.2","scale"),
