@@ -488,6 +488,7 @@ get.capt.hist <- function(data){
 #' @export
 
 plot.mask <- function(mask = NULL,traps = NULL){
-    plot(mask,asp = 1,pch = 20,col = "grey",xlab = "Longitude",ylab = "Latitude")
+    plot(mask,asp = 1,pch = 20,col = "grey",
+         xlab = "Longitude",ylab = "Latitude")
     points(traps,cex = 2,pch = 4,lwd = 3)
 }
