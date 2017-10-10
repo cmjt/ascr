@@ -101,7 +101,11 @@ shinyUI(fluidPage(
     # Input: integer of call number to estimate group location 
     numericInput("call.num", "Choose call number:",
                 min = 1, max = 1000,step = 1,
-                value = 1)
+                value = 1),
+    # Two horizontal lines before download button
+    tags$hr(),
+    tags$hr(),
+    downloadButton("report", "Generate basic report")
     
   ),
     # Main panel for displaying outputs ----
@@ -128,8 +132,7 @@ shinyUI(fluidPage(
                                  column(width = 9,
                                         h3(""),
                                         plotOutput("detectionPlot"))
-                                 )),
-                    tabPanel("Report",print("TODO report"))        
+                                 ))     
                     )
     )
   )

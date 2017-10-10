@@ -1,0 +1,12 @@
+---
+title: "Report"
+output: html_document
+params:
+  n: NA
+---
+
+```{r}
+# The `params` object is available in the document.
+params$n
+```
+
