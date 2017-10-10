@@ -144,7 +144,7 @@ shinyServer(function(input, output) {
         rownames(res) <- names(coef(fit))
         return(res)
     },rownames = TRUE)
-    # Detection function plot
+    # Detection function plots and location estimate plots
     output$detectionPlot <- renderPlot({
         detections <- read.csv(input$file2$datapath,
              header = input$header,
@@ -164,34 +164,18 @@ shinyServer(function(input, output) {
         fix <- param.fix.value[idx]
         fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
                         fix = fix)
-        show.detsurf(fit)
-    })
-   
-    # Location estimate plot
-    output$locationPlot <- renderPlot({
-        detections <- read.csv(input$file2$datapath,
-             header = input$header,
-             sep = input$sep,
-             quote = input$quote)
-        traps <- read.csv(input$file1$datapath,
-                          header = input$header,
-                          sep = input$sep,
-                          quote = input$quote)
-        traps <- as.matrix(cbind(traps$x,traps$y))
-        mask <- create.mask(traps,input$buffer,input$spacing)
-        capt.hist <-list(bincapt = get.capt.hist(detections))
-        param.fix <- input$parameter
-        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                             scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-        idx <- match(param.fix,names(param.fix.value))
-        fix <- param.fix.value[idx]
-        fit <- fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                        fix = fix)
         if(input$call.num > nrow(capt.hist$bincapt)){
+            layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+            show.detsurf(fit)
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
             text(1,1,paste("There are only",nrow(capt.hist$bincapt),"calls",collapse = " "),col = "red",cex = 2)
-            }else{
-                locations(fit, input$call.num,levels = c(0.50, 0.90, 0.95))
-                }
-    })
+            show.detfn(fit)
+        }else{
+            layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+            show.detsurf(fit)
+            locations(fit,input$call.num)
+            legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+            show.detfn(fit)
+        }
+    },width = 700,height = 700)
 })
