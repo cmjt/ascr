@@ -34,7 +34,12 @@ shinyServer(function(input, output) {
                           header = input$header,
                           sep = input$sep,
                           quote = input$quote)
-        plot(traps$x,traps$y)
+        if(!is.null(traps$post)){
+            plot(traps$x,traps$y,asp = 1,type = "n",xlab = "Longitude",ylab = "Latitude")
+            text(traps$x,traps$y,traps$post,lwd = 2)
+        }else{
+            plot(traps$x,traps$y,asp = 1,pch = 4,cex = 2,lwd = 3,xlab = "Longitude",ylab = "Latitude")
+            }
     })
         
     output$detections <- renderTable({
