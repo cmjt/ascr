@@ -35,9 +35,6 @@ shinyUI(fluidPage(
                          "text/comma-separated-values,text/plain",
                          ".csv")),
 
-      # Horizontal line to separate file choice from options
-      tags$hr(),
-
       # Input: Checkbox if file1 has header ----
       checkboxInput("header", "Header", TRUE),
 
@@ -46,23 +43,22 @@ shinyUI(fluidPage(
                    choices = c(Comma = ",",
                                Semicolon = ";",
                                Tab = "\t"),
-                   selected = ","),
+                   selected = ",",inline = TRUE),
 
       # Input: Select quotes ----
       radioButtons("quote", "Quote",
                    choices = c(None = "",
                                "Double Quote" = '"',
                                "Single Quote" = "'"),
-                   selected = '"'),
+                   selected = '"',inline = TRUE),
 
 
       # Input: Select number of rows to display ----
       radioButtons("disp", "Display",
                    choices = c(Head = "head",
                                All = "all"),
-                   selected = "head"),
-    # Two horizontal lines before mask options
-    tags$hr(),
+                   selected = "head",inline = TRUE),
+    # horizontal lines before mask options
     tags$hr(),
     # Input: integer of mask buffer in meters
     sliderInput("buffer", "Choose mask buffer (m):",
@@ -72,8 +68,7 @@ shinyUI(fluidPage(
     sliderInput("spacing", "Choose mask spacing (m):",
                 min = 0, max = 1000,
                 value = 250),
-    # Two horizontal lines before model options
-    tags$hr(),
+    # horizontal lines before model options,
     tags$hr(),
     # select box for detetion functions
     selectInput("select", label = "Chose a detection function", 
@@ -95,19 +90,17 @@ shinyUI(fluidPage(
     uiOutput("fixedshape.1"),
     # fix shape.2 to what value
     uiOutput("fixedshape.2"),
-     # Two horizontal lines before choosing call number for estimated group location
-    tags$hr(),
+    # horizontal lines before choosing call number for estimated group location
     tags$hr(),
     # Input: integer of call number to estimate group location 
-    numericInput("call.num", "Choose call number:",
+    numericInput("call.num", "Choose call number to display in estimated location plot:",
                 min = 1, max = 1000,step = 1,
                 value = 1),
     # horizontal line  before action button
     actionButton("fit", "Fit Model"),
     br(),
     p("The model will not update until this button is clicked."),
-    # Two horizontal lines before download button
-    tags$hr(),
+    # horizontal lines before download button
     tags$hr(),
     downloadButton("report", "Generate basic report")
     

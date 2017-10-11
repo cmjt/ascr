@@ -84,7 +84,7 @@ shinyServer(function(input, output) {
         params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale","shape.1","shape.2","scale"),
                             c("hn","hn","hr","hr","hr","th","th","lth","lth","lth"))
         checkboxGroupInput("parameter", "Fix which parameters:",
-                           choices = as.character(params.fix[params.fix[,2]==input$select,1]))
+                           choices = as.character(params.fix[params.fix[,2]==input$select,1]),inline = TRUE)
        
     })
     output$fixedg0 <- renderUI({
