@@ -68,6 +68,7 @@ shinyUI(fluidPage(
     sliderInput("spacing", "Choose mask spacing (m):",
                 min = 0, max = 1000,
                 value = 250),
+    downloadButton('downloadMask', 'Download Mask Plot'),
     # horizontal lines before model options,
     tags$hr(),
     # select box for detetion functions
@@ -97,12 +98,12 @@ shinyUI(fluidPage(
                 min = 1, max = 1000,step = 1,
                 value = 1),
     # horizontal line  before action button
+    tags$hr(),
     actionButton("fit", "Fit Model"),
-    br(),
-    p("The model will not update until this button is clicked."),
+    downloadButton('downloadModelPlot', 'Download Model Plot'),
     # horizontal lines before download button
     tags$hr(),
-    downloadButton("report", "Generate basic report")
+    downloadButton("report", "Generate Basic Report")
     
   ),
     # Main panel for displaying outputs ----

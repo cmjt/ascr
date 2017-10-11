@@ -68,7 +68,6 @@ shinyServer(function(input, output) {
     # plot of mask 
     output$maskPlot <- renderPlot({
         req(input$file1)
-        
         traps <- read.csv(input$file1$datapath,
                           header = input$header,
                           sep = input$sep,
@@ -178,7 +177,48 @@ shinyServer(function(input, output) {
             text(1,1,paste("convergence issues"),col = "red",cex = 2)
         }
     },width = 700,height = 700)
-    ## code to produce downloadable report
+    ## code to produce downloadable objects (i.e., plots and report)
+    output$downloadMask <- downloadHandler(
+      filename = "ascrMask.png",
+      content = function(file) {
+          png(file)
+          req(input$file1)
+          traps <- read.csv(input$file1$datapath,
+                            header = input$header,
+                            sep = input$sep,
+                            quote = input$quote)
+          traps <- as.matrix(cbind(traps$x,traps$y))
+          mask <- create.mask(traps,input$buffer,input$spacing)
+          plot.mask(mask,traps)
+          dev.off()
+      })
+    output$downloadModelPlot <- downloadHandler(
+        filename = "ascrModelPlots.png",
+        content = function(file) {
+            png(file)
+            fit <- fit()
+            if(class(fit)[1]=="ascr"){
+                validate(need(input$call.num,"please provide a call number"))
+                if(input$call.num > nrow(capt.hist$bincapt)){
+                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                    show.detsurf(fit)
+                    plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+                    text(1,1,paste("There are only",nrow(fit$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
+                    show.detfn(fit)
+                }else{
+                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                    show.detsurf(fit)
+                    locations(fit,input$call.num)
+                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                    show.detfn(fit)
+                }
+            }else{
+                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+                text(1,1,paste("convergence issues"),col = "red",cex = 2)
+            }
+            dev.off()
+        })
+    
     output$report <- downloadHandler(
         # For PDF output, change this to "report.pdf"
         filename = "report.html",
