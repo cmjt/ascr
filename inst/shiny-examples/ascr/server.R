@@ -160,10 +160,8 @@ shinyServer(function(input, output) {
         })
     },rownames = TRUE)
     # Detection function plots and location estimate plots
-    output$detectionPlot <- renderPlot({
-        input$fit
-        
-        isolate({
+   
+        fit <- eventReactive(input$fit,{
             req(input$file1)
             req(input$file2)
             detections <- read.csv(input$file2$datapath,
@@ -186,26 +184,28 @@ shinyServer(function(input, output) {
             fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
                                       fix = fix)},
                             warning = function(w) print("fit.ascr convergence issues"))
-            if(class(fit)[1]=="ascr"){
-                validate(need(input$call.num,"please provide a call number"))
-                if(input$call.num > nrow(capt.hist$bincapt)){
-                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                    show.detsurf(fit)
-                    plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                    text(1,1,paste("There are only",nrow(capt.hist$bincapt),"calls",collapse = " "),col = "red",cex = 2)
-                    show.detfn(fit)
-                }else{
-                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                    show.detsurf(fit)
-                    locations(fit,input$call.num)
-                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
-                    show.detfn(fit)
-                }
-            }else{
-                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                text(1,1,paste("convergence issues"),col = "red",cex = 2)
-            }
         })
+    output$detectionPlot <- renderPlot({
+        fit <- fit()
+        if(class(fit)[1]=="ascr"){
+            validate(need(input$call.num,"please provide a call number"))
+            if(input$call.num > nrow(capt.hist$bincapt)){
+                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                show.detsurf(fit)
+                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+                text(1,1,paste("There are only",nrow(fit$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
+                show.detfn(fit)
+            }else{
+                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
+                show.detsurf(fit)
+                locations(fit,input$call.num)
+                legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                show.detfn(fit)
+            }
+        }else{
+            plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+            text(1,1,paste("convergence issues"),col = "red",cex = 2)
+        }
     },width = 700,height = 700)
     ## code to produce downloadable report
     output$report <- downloadHandler(
