@@ -125,66 +125,42 @@ shinyServer(function(input, output) {
     # Fit model based on inputs of user and output parameter estimates and plots
     
     
+   
+    
+    fit <- eventReactive(input$fit,{
+        req(input$file1)
+        req(input$file2)
+        detections <- read.csv(input$file2$datapath,
+                               header = input$header,
+                               sep = input$sep,
+                               quote = input$quote)
+        traps <- read.csv(input$file1$datapath,
+                          header = input$header,
+                          sep = input$sep,
+                          quote = input$quote)
+        traps <- as.matrix(cbind(traps$x,traps$y))
+        mask <- create.mask(traps,input$buffer,input$spacing)
+        capt.hist <-list(bincapt = get.capt.hist(detections))
+        param.fix <- input$parameter
+        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                                scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+        idx <- match(param.fix,names(param.fix.value))
+        fix <- param.fix.value[idx]
+        fit <- NULL
+        fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                                  fix = fix)},
+                        warning = function(w) print("fit.ascr convergence issues"))
+    })
+    # coefficients
     output$coefs <- renderTable({
-        input$fit
-
-        isolate({
-            req(input$file1)
-            req(input$file2)
-            detections <- read.csv(input$file2$datapath,
-                                   header = input$header,
-                                   sep = input$sep,
-                                   quote = input$quote)
-            traps <- read.csv(input$file1$datapath,
-                              header = input$header,
-                              sep = input$sep,
-                              quote = input$quote)
-            traps <- as.matrix(cbind(traps$x,traps$y))
-            mask <- create.mask(traps,input$buffer,input$spacing)
-            capt.hist <-list(bincapt = get.capt.hist(detections))
-            param.fix <- input$parameter
-            param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                                    scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-            idx <- match(param.fix,names(param.fix.value))
-            fix <- param.fix.value[idx]
-            fit <- NULL
-            fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                                      fix = fix)},
-                            warning = function(w) print("fit.ascr convergence issues"))
-            if(class(fit)[1]=="ascr"){
-                res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
-                rownames(res) <- names(coef(fit))
-                return(res)
-            }
-            
-        })
+        fit <- fit()
+        if(class(fit)[1]=="ascr"){
+            res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
+            rownames(res) <- names(coef(fit))
+            return(res)
+        }
     },rownames = TRUE)
     # Detection function plots and location estimate plots
-   
-        fit <- eventReactive(input$fit,{
-            req(input$file1)
-            req(input$file2)
-            detections <- read.csv(input$file2$datapath,
-                                   header = input$header,
-                                   sep = input$sep,
-                                   quote = input$quote)
-            traps <- read.csv(input$file1$datapath,
-                              header = input$header,
-                              sep = input$sep,
-                              quote = input$quote)
-            traps <- as.matrix(cbind(traps$x,traps$y))
-            mask <- create.mask(traps,input$buffer,input$spacing)
-            capt.hist <-list(bincapt = get.capt.hist(detections))
-            param.fix <- input$parameter
-            param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                                    scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-            idx <- match(param.fix,names(param.fix.value))
-            fix <- param.fix.value[idx]
-            fit <- NULL
-            fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                                      fix = fix)},
-                            warning = function(w) print("fit.ascr convergence issues"))
-        })
     output$detectionPlot <- renderPlot({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
