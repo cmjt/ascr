@@ -1,7 +1,6 @@
 
 library(shiny)
 library(ascr)
-library(shinycssloaders)
 
 
 shinyServer(function(input, output) {
@@ -123,10 +122,6 @@ shinyServer(function(input, output) {
                          )
     })
     # Fit model based on inputs of user and output parameter estimates and plots
-    
-    
-   
-    
     fit <- eventReactive(input$fit,{
         req(input$file1)
         req(input$file2)
