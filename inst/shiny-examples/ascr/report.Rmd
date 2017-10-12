@@ -12,7 +12,7 @@ The data included a total of `r nrow(params$fit$args$capt$bincapt)` calls and `r
 The mask used had a `r params$buffer` meter buffer and spacing of `r params$spacing` meters.
 
 ```{r plot mask,eval = TRUE,echo = FALSE}
-plot.mask(fit$args$mask,fit$traps)
+plot.mask(params$fit$args$mask,params$fit$args$traps)
 ```
 
 
