@@ -91,15 +91,16 @@ shinyUI(fluidPage(
     uiOutput("fixedshape.1"),
     # fix shape.2 to what value
     uiOutput("fixedshape.2"),
+    
+    # horizontal line  before action button
+    tags$hr(),
+    actionButton("fit", "Fit Model"),
     # horizontal lines before choosing call number for estimated group location
     tags$hr(),
     # Input: integer of call number to estimate group location 
     numericInput("call.num", "Choose call number to display in estimated location plot:",
                 min = 1, max = 1000,step = 1,
                 value = 1),
-    # horizontal line  before action button
-    tags$hr(),
-    actionButton("fit", "Fit Model"),
     downloadButton('downloadModelPlot', 'Download Model Plot'),
     # horizontal lines before download button
     tags$hr(),
