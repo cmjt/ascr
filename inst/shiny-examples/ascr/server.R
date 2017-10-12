@@ -3,7 +3,7 @@ library(shiny)
 library(ascr)
 
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output,session) {
 
   output$traps <- renderTable({
 
@@ -257,5 +257,6 @@ shinyServer(function(input, output) {
             })
             
         })
+    session$onSessionEnded(stopApp)
 })
     
