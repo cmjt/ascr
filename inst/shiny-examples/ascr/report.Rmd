@@ -38,7 +38,7 @@ The estimated locations of each call is shown in this animation
 ```{r animation, eval=TRUE,echo=FALSE,fig.show='animate',message=FALSE,fig.height=7,fig.width=7}
 library(animation)
 frames <- nrow(params$fit$args$capt$bincapt)
-oopt = ani.options(loop = 1, nmax = frames,ani.width = 600,ani.height = 600)
+oopt = ani.options(interval = 0.4,loop = 1, nmax = frames,ani.width = 600,ani.height = 600)
 out <- vector("list", frames)
 for (i in 1:ani.options("nmax")) {
   locations(params$fit,i)

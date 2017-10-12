@@ -20,8 +20,7 @@ shinyServer(function(input, output,session) {
    
     if(input$disp == "head") {
         return(head(traps))
-    }
-    else {
+    }else{
         return(traps)
     }
 
@@ -58,7 +57,7 @@ shinyServer(function(input, output,session) {
 
         if(input$disp == "head") {
             return(head(detections))
-    }else {
+    }else{
         return(detections)
     }
 
@@ -74,9 +73,9 @@ shinyServer(function(input, output,session) {
                                quote = input$quote)
         capt.hist <-list(bincapt = get.capt.hist(detections))
         if(input$disp == "head") {
-            return(head(capt.hist))
+            return(head(capt.hist[[1]]))
         }else{
-            return(capt.hist)
+            return(capt.hist[[1]])
         }
         },striped = TRUE,colnames = FALSE)
         
