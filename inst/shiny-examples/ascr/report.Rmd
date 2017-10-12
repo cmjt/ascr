@@ -4,42 +4,44 @@ output: html_document
 params:
   buffer: NA
   spacing: NA
+  fit: NA
 ---
 
-The data included a total of `r nrow(fit$args$capt$bincapt)` calls and `r ncol(fit$args$capt$bincapt)` traps.
+The data included a total of `r nrow(params$fit$args$capt$bincapt)` calls and `r ncol(params$fit$args$capt$bincapt)` traps.
 
 The mask used had a `r params$buffer` meter buffer and spacing of `r params$spacing` meters.
 
 ```{r plot mask,eval = TRUE,echo = FALSE}
-plot.mask(mask,cbind(traps$x,traps$y))
+plot.mask(fit$args$mask,fit$traps)
 ```
 
 
 Parameter estimates and standard errors from the analysis. 
 ```{r}
-summary(fit)
+summary(params$fit)
 ```
 
 The detection surface is estimated as
 
 ```{r plot set.surf,eval=TRUE,echo=FALSE}
-show.detsurf(fit)
+show.detsurf(params$fit)
 ```
 
 The detection function is estimated as 
 
 ```{r plot.detfn, eval=TRUE,echo=FALSE}
-show.detfn(fit)
+show.detfn(params$fit)
 ```
 
 The estimated locations of each call is shown in this animation
 
 ```{r animation, eval=TRUE,echo=FALSE,fig.show='animate',message=FALSE,fig.height=7,fig.width=7}
-frames <- nrow(fit$args$capt$bincapt)
+library(animation)
+frames <- nrow(params$fit$args$capt$bincapt)
 oopt = ani.options(loop = 1, nmax = frames,ani.width = 600,ani.height = 600)
 out <- vector("list", frames)
 for (i in 1:ani.options("nmax")) {
-  locations(fit,i)
+  locations(params$fit,i)
   legend("top",legend = paste("call",i,sep = " "),bty = "n")
   ani.pause()
   }
