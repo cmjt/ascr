@@ -122,6 +122,7 @@ shinyServer(function(input, output) {
     })
     # Fit model based on inputs of user and output parameter estimates and plots
     fit <- eventReactive(input$fit,{
+        withProgress(message = 'Fitting model', value = 0,{
         req(input$file1)
         req(input$file2)
         detections <- read.csv(input$file2$datapath,
@@ -144,16 +145,17 @@ shinyServer(function(input, output) {
         fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
                                   fix = fix)},
                         warning = function(w) print("fit.ascr convergence issues"))
+        })
     })
     # coefficients
     output$coefs <- renderTable({
         fit <- fit()
-        if(class(fit)[1]=="ascr"){
-            res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
-            rownames(res) <- names(coef(fit))
-            return(res)
-        }
-    },rownames = TRUE)
+            if(class(fit)[1]=="ascr"){
+                res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
+                rownames(res) <- names(coef(fit))
+                return(res)
+            }
+        },rownames = TRUE)
     # Detection function plots and location estimate plots
     output$detectionPlot <- renderPlot({
         fit <- fit()
@@ -223,6 +225,7 @@ shinyServer(function(input, output) {
         # For PDF output, change this to "report.pdf"
         filename = "report.html",
         content = function(file) {
+            withProgress(message = 'Generating report', min = 0,max = 100,{
             # Copy the report file to a temporary directory before processing it, in
             # case we don't have write permissions to the current working dir (which
             # can happen when deployed).
@@ -239,6 +242,7 @@ shinyServer(function(input, output) {
                               params = params,
                               envir = new.env(parent = globalenv())
                               )
+            })
             
         })
 })
