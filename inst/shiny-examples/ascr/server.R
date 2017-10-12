@@ -75,7 +75,7 @@ shinyServer(function(input, output,session) {
                                quote = input$quote)
         capt.hist <-list(bincapt = get.capt.hist(detections))
         return(capt.hist)
-        },striped = TRUE)
+        },striped = TRUE,colnames = FALSE)
         
     # plot of mask 
     output$maskPlot <- renderPlot({

@@ -11,7 +11,7 @@ library(shiny)
 
 
 shinyUI(fluidPage(
-
+    
   # App title ----
   titlePanel("acoustic spatial capture-recapture (ascr)"),
 
@@ -91,16 +91,16 @@ shinyUI(fluidPage(
     uiOutput("fixedshape.1"),
     # fix shape.2 to what value
     uiOutput("fixedshape.2"),
-    
-    # horizontal line  before action button
-    tags$hr(),
-    actionButton("fit", "Fit Model"),
-    # horizontal lines before choosing call number for estimated group location
+     # horizontal lines before choosing call number for estimated group location
     tags$hr(),
     # Input: integer of call number to estimate group location 
     numericInput("call.num", "Choose call number to display in estimated location plot:",
                 min = 1, max = 1000,step = 1,
                 value = 1),
+    # horizontal line  before action button
+    tags$hr(),
+    actionButton("fit", "Fit Model"),
+   
     downloadButton('downloadModelPlot', 'Download Model Plot'),
     # horizontal lines before download button
     tags$hr(),
@@ -115,19 +115,19 @@ shinyUI(fluidPage(
                                  tabPanel("Traps",
                                           fluidRow(
                                               column(width = 4,
-                                                     h2(""),
+                                                     h4("Raw data"),
                                                      tableOutput("traps")),
                                               column(width = 4,
-                                                     h2(""),
+                                                     h4("Trap locations"),
                                                      plotOutput("trapsPlot"))
                                           )),
                                  tabPanel("Detections",
                                           fluidRow(
                                               column(width = 4,
-                                                     h2(""),
+                                                     h4("Raw data"),
                                                      tableOutput("detections")),
                                               column(width = 4,
-                                                     h2(""),
+                                                     h4("Capture history matrix"),
                                                      tableOutput("capt.hist")))))),
                     tabPanel("Mask",plotOutput("maskPlot")),
                     tabPanel("Model",
