@@ -85,6 +85,7 @@ shinyServer(function(input, output,session) {
                           sep = input$sep,
                           quote = input$quote)
         traps <- as.matrix(cbind(traps$x,traps$y))
+        validate(need(input$buffer > input$spacing,"The mask buffer cannot be less than the spacing"))
         mask <- create.mask(traps,input$buffer,input$spacing)
         plot.mask(mask,traps)
         
