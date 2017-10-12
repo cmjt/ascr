@@ -474,7 +474,7 @@ get.bias <- function(fit, pars = "fitted", mce = FALSE){
 get.capt.hist <- function(data){
     occasion <- data$occasion
     post <- data$post
-    group <- 1:nrow(data)
+    group <- data$group
     cantor <- 1/2 * (occasion + group)* (occasion + group + 1) + group
     capt.hist <- table(cantor, post,dnn = list("",""))
     capt.hist <- capt.hist[match(unique(cantor),rownames(capt.hist)), ]
