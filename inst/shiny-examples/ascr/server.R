@@ -231,7 +231,7 @@ shinyServer(function(input, output) {
             
             # Set up parameters to pass to Rmd document
             params <- list(buffer = input$buffer,
-                           fit = fit())
+                           spacing = input$spacing)
             # Knit the document, passing in the `params` list, and eval it in a
             # child of the global environment (this isolates the code in the document
             # from the code in this app).
