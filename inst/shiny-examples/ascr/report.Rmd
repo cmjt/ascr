@@ -23,7 +23,7 @@ summary(params$fit)
 
 The detection surface is estimated as
 
-```{r plot set.surf,eval=TRUE,echo=FALSE}
+```{r plot set.surf,eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE}
 show.detsurf(params$fit)
 ```
 

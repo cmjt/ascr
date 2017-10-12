@@ -58,8 +58,7 @@ shinyServer(function(input, output,session) {
 
         if(input$disp == "head") {
             return(head(detections))
-    }
-    else {
+    }else {
         return(detections)
     }
 
@@ -74,7 +73,11 @@ shinyServer(function(input, output,session) {
                                sep = input$sep,
                                quote = input$quote)
         capt.hist <-list(bincapt = get.capt.hist(detections))
-        return(capt.hist)
+        if(input$disp == "head") {
+            return(head(capt.hist))
+        }else{
+            return(capt.hist)
+        }
         },striped = TRUE,colnames = FALSE)
         
     # plot of mask 
