@@ -163,7 +163,7 @@ shinyServer(function(input, output) {
                 layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
                 show.detsurf(fit)
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                text(1,1,paste("There are only",nrow(fit$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
+                text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
                 show.detfn(fit)
             }else{
                 layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
@@ -203,7 +203,7 @@ shinyServer(function(input, output) {
                     layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
                     show.detsurf(fit)
                     plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                    text(1,1,paste("There are only",nrow(fit$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
+                    text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
                     show.detfn(fit)
                 }else{
                     layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
@@ -230,7 +230,8 @@ shinyServer(function(input, output) {
             file.copy("report.Rmd", tempReport, overwrite = TRUE)
             
             # Set up parameters to pass to Rmd document
-            params <- list(n = input$buffer)
+            params <- list(buffer = input$buffer,
+                           fit = fit())
             # Knit the document, passing in the `params` list, and eval it in a
             # child of the global environment (this isolates the code in the document
             # from the code in this app).
