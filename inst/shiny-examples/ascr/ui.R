@@ -120,7 +120,14 @@ shinyUI(fluidPage(
                                                      h2(""),
                                                      plotOutput("trapsPlot"))
                                           )),
-                                 tabPanel("Detections", tableOutput("detections")))),
+                                 tabPanel("Detections",
+                                          fluidRow(
+                                              column(width = 4,
+                                                     h2(""),
+                                                     tableOutput("detections")),
+                                              column(width = 4,
+                                                     h2(""),
+                                                     tableOutput("capt.hist")))))),
                     tabPanel("Mask",plotOutput("maskPlot")),
                     tabPanel("Model",
                              fluidRow(

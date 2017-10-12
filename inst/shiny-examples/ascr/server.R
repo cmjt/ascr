@@ -49,15 +49,15 @@ shinyServer(function(input, output) {
     # and uploads a file, head of that data file by default,
     # or all rows if selected, will be shown.
 
-    req(input$file2)
+        req(input$file2)
 
-    detections <- read.csv(input$file2$datapath,
+        detections <- read.csv(input$file2$datapath,
              header = input$header,
              sep = input$sep,
              quote = input$quote)
 
-    if(input$disp == "head") {
-        return(head(detections))
+        if(input$disp == "head") {
+            return(head(detections))
     }
     else {
         return(detections)
@@ -65,6 +65,18 @@ shinyServer(function(input, output) {
 
     },
     striped = TRUE)
+
+    output$capt.hist <- renderTable({
+        req(input$file2)
+
+        detections <- read.csv(input$file2$datapath,
+                               header = input$header,
+                               sep = input$sep,
+                               quote = input$quote)
+        capt.hist <-list(bincapt = get.capt.hist(detections))
+        return(capt.hist)
+        },striped = TRUE)
+        
     # plot of mask 
     output$maskPlot <- renderPlot({
         req(input$file1)
@@ -161,7 +173,7 @@ shinyServer(function(input, output) {
         fit <- fit()
         if(class(fit)[1]=="ascr"){
             validate(need(input$call.num,"please provide a call number"))
-            if(input$call.num > nrow(capt.hist$bincapt)){
+            if(input$call.num > nrow(fit$args$capt$bincapt)){
                 layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
                 show.detsurf(fit)
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
@@ -201,7 +213,7 @@ shinyServer(function(input, output) {
             fit <- fit()
             if(class(fit)[1]=="ascr"){
                 validate(need(input$call.num,"please provide a call number"))
-                if(input$call.num > nrow(capt.hist$bincapt)){
+                if(input$call.num > nrow(fit$args$capt$bincapt)){
                     layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
                     show.detsurf(fit)
                     plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
