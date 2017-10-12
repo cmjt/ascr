@@ -34,9 +34,9 @@ show.detfn(fit)
 
 The estimated locations of each call is shown in this animation
 
-```{r animation, eval=TRUE,echo=FALSE,fig.show='animate',message=FALSE}
+```{r animation, eval=TRUE,echo=FALSE,fig.show='animate',message=FALSE,fig.height=7,fig.width=7}
 frames <- nrow(fit$args$capt$bincapt)
-oopt = ani.options(loop = 1, nmax = frames,ani.width = 800,ani.height = 800)
+oopt = ani.options(loop = 1, nmax = frames,ani.width = 600,ani.height = 600)
 out <- vector("list", frames)
 for (i in 1:ani.options("nmax")) {
   locations(fit,i)
