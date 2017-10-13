@@ -476,10 +476,11 @@ get.capt.hist <- function(data){
     post <- data$post
     group <- data$group
     cantor <- 1/2 * (occasion + group)* (occasion + group + 1) + group
-    capt.hist <- table(cantor, post,dnn = list("",""))
-    capt.hist <- capt.hist[match(unique(cantor),rownames(capt.hist)), ]
-    capt.hist <- matrix(capt.hist,ncol = length(table(post)),byrow = FALSE)
-    rownames(capt.hist) <- NULL
+    tmp <- data.frame(array = rep(1,nrow(data)), ID = cantor,
+                      occasion = occasion, trap = as.numeric(data$post))
+    if("bearing" %in% names(data)) {tmp$bearing <- data$bearing}
+    if("distance" %in% names(data)) {tmp$distance <- data$distance}
+    capt.hist <- create.capt(tmp,n.traps = length(table(tmp$trap)))
     capt.hist
 }
 #' Function to plot mask along with trap locations in a 'tidy' presentable manner
