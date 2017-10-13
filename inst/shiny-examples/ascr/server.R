@@ -71,13 +71,15 @@ shinyServer(function(input, output,session) {
                                header = input$header,
                                sep = input$sep,
                                quote = input$quote)
-        capt.hist <-list(bincapt = get.capt.hist(detections))
+        capt.hist <- get.capt.hist(detections)
+        colnames(capt.hist[[1]]) <- names(table(detections$post))
+        rownames(capt.hist[[1]]) <- unique(paste("occasion",detections$occasion, "group", detections$group))
         if(input$disp == "head") {
             return(head(capt.hist[[1]]))
         }else{
             return(capt.hist[[1]])
         }
-        },striped = TRUE,colnames = FALSE)
+        },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
         
     # plot of mask 
     output$maskPlot <- renderPlot({
@@ -150,7 +152,10 @@ shinyServer(function(input, output,session) {
                           quote = input$quote)
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
-        capt.hist <-list(bincapt = get.capt.hist(detections))
+        nms <- names(detections)
+        
+        capt.hist <- get.capt.hist(detections)
+                
         param.fix <- input$parameter
         param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
                                 scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)

@@ -478,7 +478,12 @@ get.capt.hist <- function(data){
     cantor <- 1/2 * (occasion + group)* (occasion + group + 1) + group
     tmp <- data.frame(array = rep(1,nrow(data)), ID = cantor,
                       occasion = occasion, trap = as.numeric(data$post))
-    if("bearing" %in% names(data)) {tmp$bearing <- data$bearing}
+    if("bearing" %in% names(data)) {
+        tmp$bearing <- data$bearing
+        if(max(tmp$bearing)>=1) {
+            tmp$bearing <- (tmp$bearing/360)*(2*pi)
+        }
+    }
     if("distance" %in% names(data)) {tmp$distance <- data$distance}
     capt.hist <- create.capt(tmp,n.traps = length(table(tmp$trap)))
     capt.hist

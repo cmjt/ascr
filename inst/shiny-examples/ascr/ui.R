@@ -22,14 +22,14 @@ shinyUI(fluidPage(
     sidebarPanel(
 
       # Input: Select a csv file of trap locations
-      fileInput("file1", "Choose CSV File of trap locations",
+      fileInput("file1", "Choose CSV file of trap locations",
                 multiple = TRUE,
                 accept = c("text/csv",
                          "text/comma-separated-values,text/plain",
                          ".csv")),
       
       # Input: Select a csv file of detections
-      fileInput("file2", "Choose CSV File of detections",
+      fileInput("file2", "Choose CSV file of detections",
                 multiple = TRUE,
                 accept = c("text/csv",
                          "text/comma-separated-values,text/plain",
