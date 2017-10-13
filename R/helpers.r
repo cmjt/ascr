@@ -469,7 +469,11 @@ get.bias <- function(fit, pars = "fitted", mce = FALSE){
 #' Function to turn data frame into capture history matrix
 #' @param data A data.frame with at least the following named columns:
 #' \code{occasion}, numeric day or time index;
-#' \code{post}, a factor vector of post (trap) names.
+#' \code{post}, a factor vector of post (trap) names,
+#' and \code{group}. It is the pairing of
+#' \code{group} and \code{occasion} that forms the individual
+#' "call id". Optional to include a column of bearings (in radians)
+#' and/or distances.
 #' @export 
 get.capt.hist <- function(data){
     occasion <- data$occasion
@@ -480,6 +484,7 @@ get.capt.hist <- function(data){
                       occasion = occasion, trap = as.numeric(data$post))
     if("bearing" %in% names(data)) {tmp$bearing <- data$bearing}
     if("distance" %in% names(data)) {tmp$distance <- data$distance}
+    tmp <- tmp[order(tmp$ID),]
     capt.hist <- create.capt(tmp,n.traps = length(table(tmp$trap)))
     capt.hist
 }
