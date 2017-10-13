@@ -4,19 +4,26 @@ library(ascr)
 
 
 shinyServer(function(input, output,session) {
+    ## read in input data
+    traps <- reactive({
+        req(input$file1)
 
+        traps <- read.csv(input$file1$datapath,
+                          header = input$header,
+                          sep = input$sep,
+                          quote = input$quote)
+    })
+    detections <- reactive({
+         req(input$file2)
+
+         detections <- read.csv(input$file2$datapath,
+                                header = input$header,
+                                sep = input$sep,
+                                quote = input$quote)
+    })
+    # output trap locations
   output$traps <- renderTable({
-
-    # input$file1 (traps) will be NULL initially. After the user selects
-    # and uploads a file, head of that data file by default,
-    # or all rows if selected, will be shown.
-
-    req(input$file1)
-
-    traps <- read.csv(input$file1$datapath,
-             header = input$header,
-             sep = input$sep,
-             quote = input$quote)
+      traps <- traps()
    
     if(input$disp == "head") {
         return(head(traps))
@@ -28,12 +35,7 @@ shinyServer(function(input, output,session) {
   striped = TRUE)
     # code to plot trap locations
     output$trapsPlot <- renderPlot({
-        req(input$file1)
-        
-        traps <- read.csv(input$file1$datapath,
-                          header = input$header,
-                          sep = input$sep,
-                          quote = input$quote)
+        traps <- traps()
         if(!is.null(traps$post)){
             plot(traps$x,traps$y,asp = 1,type = "n",xlab = "Longitude",ylab = "Latitude")
             text(traps$x,traps$y,traps$post,lwd = 2)
@@ -43,17 +45,7 @@ shinyServer(function(input, output,session) {
     })
         
     output$detections <- renderTable({
-        
-    # input$file2 (detections) will be NULL initially. After the user selects
-    # and uploads a file, head of that data file by default,
-    # or all rows if selected, will be shown.
-
-        req(input$file2)
-
-        detections <- read.csv(input$file2$datapath,
-             header = input$header,
-             sep = input$sep,
-             quote = input$quote)
+        detections <- detections()
 
         if(input$disp == "head") {
             return(head(detections))
@@ -65,12 +57,7 @@ shinyServer(function(input, output,session) {
     striped = TRUE)
 
     output$capt.hist <- renderTable({
-        req(input$file2)
-
-        detections <- read.csv(input$file2$datapath,
-                               header = input$header,
-                               sep = input$sep,
-                               quote = input$quote)
+        detections <- detections()
         capt.hist <- get.capt.hist(detections)
         colnames(capt.hist[[1]]) <- names(table(detections$post))
         rownames(capt.hist[[1]]) <- unique(paste("occasion",detections$occasion, "group", detections$group))
@@ -79,15 +66,28 @@ shinyServer(function(input, output,session) {
         }else{
             return(capt.hist[[1]])
         }
-        },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
-        
+    },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
+    # chage buffer slider based on trap range
+    observe({
+        infile <- input$file1 # user input file upload
+        if(!is.null(infile)) {
+            traps <- traps()
+            maxdistance <- 4*diff(range(traps$x,traps$y)) 
+            updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2) 
+        }
+    })
+    # chage spacing slider based on trap range
+    observe({
+        infile <- input$file1 # user input file upload
+        if(!is.null(infile)) {
+            traps <- traps()
+            maxdistance <- diff(range(traps$x,traps$y))/4
+            updateSliderInput(session, "spacing", max = maxdistance, value = maxdistance/2) 
+        }
+        })
     # plot of mask 
     output$maskPlot <- renderPlot({
-        req(input$file1)
-        traps <- read.csv(input$file1$datapath,
-                          header = input$header,
-                          sep = input$sep,
-                          quote = input$quote)
+        traps <- traps()
         traps <- as.matrix(cbind(traps$x,traps$y))
         validate(need(input$buffer > input$spacing,"The mask buffer cannot be less than the spacing"))
         mask <- create.mask(traps,input$buffer,input$spacing)
@@ -96,8 +96,8 @@ shinyServer(function(input, output,session) {
     },width = 500, height = 500)
     # chose which parameters of which detection function to fit, conditional numeric input for fixing param values
     output$fixedParamSelection <- renderUI({
-        params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale","shape.1","shape.2","scale"),
-                            c("hn","hn","hr","hr","hr","th","th","lth","lth","lth"))
+        params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale"),
+                            c("hn","hn","hr","hr","hr","th","th"))
         checkboxGroupInput("parameter", "Fix which parameters:",
                            choices = as.character(params.fix[params.fix[,2]==input$select,1]),inline = TRUE)
        
@@ -122,34 +122,13 @@ shinyServer(function(input, output,session) {
                          numericInput("shape","fix shape to:",value=1,min=1,max=100,step=1)
                          )
     })
-    output$fixedscale <- renderUI({
-        conditionalPanel(condition = "input.parameter.includes('scale')",       
-                         numericInput("scale","fix scale to:",value=1,min=1,max=100,step=1)
-                         )
-    })
-    output$fixedshape.1 <- renderUI({
-        conditionalPanel(condition = "input.parameter.includes('shape.1')",       
-                         numericInput("shape.1","fix shape.1 to:",value=1,min=1,max=100,step=1)
-                         )
-    })
-    output$fixedshape.2 <- renderUI({
-        conditionalPanel(condition = "input.parameter.includes('shape.2')",       
-                         numericInput("shape.2","fix shape.2 to:",value=1,min=1,max=100,step=1)
-                         )
-    })
+    
     # Fit model based on inputs of user and output parameter estimates and plots
     fit <- eventReactive(input$fit,{
         withProgress(message = 'Fitting model', value = 0,{
-        req(input$file1)
-        req(input$file2)
-        detections <- read.csv(input$file2$datapath,
-                               header = input$header,
-                               sep = input$sep,
-                               quote = input$quote)
-        traps <- read.csv(input$file1$datapath,
-                          header = input$header,
-                          sep = input$sep,
-                          quote = input$quote)
+        
+        detections <- detections()
+        traps <- traps()
         traps <- as.matrix(cbind(traps$x,traps$y))
         mask <- create.mask(traps,input$buffer,input$spacing)
         nms <- names(detections)
@@ -204,11 +183,8 @@ shinyServer(function(input, output,session) {
       filename = "ascrMask.png",
       content = function(file) {
           png(file)
-          req(input$file1)
-          traps <- read.csv(input$file1$datapath,
-                            header = input$header,
-                            sep = input$sep,
-                            quote = input$quote)
+          
+          traps <- traps()
           traps <- as.matrix(cbind(traps$x,traps$y))
           mask <- create.mask(traps,input$buffer,input$spacing)
           plot.mask(mask,traps)
