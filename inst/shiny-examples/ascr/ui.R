@@ -1,16 +1,5 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
 
-library(shiny)
-
-
-shinyUI(fluidPage(   
+shinyUI(fluidPage(
   # App title ----
   titlePanel("acoustic spatial capture-recapture (ascr)"),
 
@@ -20,7 +9,7 @@ shinyUI(fluidPage(
     # Sidebar panel for inputs ----
     sidebarPanel(
         h3(tags$b("Read in data")),
-        actionLink("example", "Load example data"),
+        checkboxInput("example", "Load single trap example data"), # example
                                         # Input: Select a csv file of trap locations
         fileInput("file1", "Choose CSV file of trap locations",
                   multiple = TRUE,
@@ -67,7 +56,7 @@ shinyUI(fluidPage(
         sliderInput("spacing", "Choose mask spacing (m):",
                     min = 0, max = 1000,
                     value = 250),
-        downloadButton('downloadMask', 'Download Mask Plot'),
+        downloadButton('downloadMask', 'Mask Plot'),
                                         # horizontal lines before model options,
         
         h3(tags$b("Modelling")),
@@ -99,16 +88,17 @@ shinyUI(fluidPage(
                      value = 1),
                                         # horizontal line  before action button
         tags$hr(),
-        actionButton("fit", "Fit Model"),
-        
-        downloadButton('downloadModelPlot', 'Download Model Plot'),
-                                        
+        actionButton("fit", "Fit model"),
+        hr(),
+        downloadButton('downloadSurfPlot', 'Detection surface plot'),
+        downloadButton('downloadContPlot', 'Detection contour plot'),
+        downloadButton('downloadDetPlot', 'Detection function plot'),                               
         h3(tags$b("Other")),
         checkboxInput("advanced", "Advanced options"),
         conditionalPanel(
             condition = "input.advanced == true",
             radioButtons("advancedOptions", "Advanced options",
-                        list("increase mask buffer", "get log", "print modelling trace"))
+                        list("increase mask buffer", "chose parameter starting values","get log", "print modelling trace"))
         ),
         downloadButton("report", "Generate Basic Report")
         
@@ -138,14 +128,25 @@ shinyUI(fluidPage(
                     tabPanel("Mask",plotOutput("maskPlot")),
                     tabPanel("Model",
                              fluidRow(
-                                 column(width = 3,
-                                        h3(""),
+                                 column(width = 4,
+                                        h4("Parameter values"),
                                         tableOutput("coefs")),
-                                 column(width = 9,
-                                        h3(""),
-                                        plotOutput("detectionPlot"))
-                             ))     
+                                 column(width = 4,
+                                        h4("Akaike information criterion (AIC)"),
+                                        tableOutput("AIC")),
+                                 column(width = 4,
+                                        h4("log-Likelihood value"),
+                                        tableOutput("LL"))
+                             ),
+                             fluidRow(
+                                 h4("Detection surface"),
+                                 plotOutput("detectionsurf")
+                             ),
+                             fluidRow(
+                                 h4("Detection surface and location estimates"),
+                                 plotOutput("detlocs")
+                             ) 
                     )
     )
   )
-))
+)))

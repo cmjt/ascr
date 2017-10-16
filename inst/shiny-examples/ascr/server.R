@@ -7,8 +7,8 @@ shinyServer(function(input, output,session) {
     ## read in input data
     traps <- reactive({
         if(input$example == TRUE){
-            file1 <- system.file("inst/shiny-examples/ascr/data/exampletraps.csv", package = "ascr")
-            traps <- read.csv(file1)
+            file <- system.file("inst/shiny-examples/ascr/data/exampletraps.csv", package = "ascr")
+            traps <- read.csv(file)
 
         }else{
             req(input$file1)
@@ -21,8 +21,8 @@ shinyServer(function(input, output,session) {
     })
     detections <- reactive({
         if(input$example == TRUE){
-            file2 <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
-            detections <- read.csv(file2)
+            file <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
+            detections <- read.csv(file)
 
         }else{
          req(input$file2)
@@ -167,65 +167,93 @@ shinyServer(function(input, output,session) {
                 rownames(res) <- names(coef(fit))
                 return(res)
             }
-        },rownames = TRUE)
+    },rownames = TRUE)
+    # AIC
+    output$AIC <- renderTable({
+        fit <- fit()
+        data.frame(AIC = AIC(fit))
+    },rownames = FALSE)
+   # log Likelohood
+    output$LL <- renderTable({
+        fit <- fit()
+        data.frame(logLik = fit$loglik)
+    },rownames = FALSE)
     # Detection function plots and location estimate plots
-    output$detectionPlot <- renderPlot({
+    
+    output$detectionsurf <- renderPlot({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
+            par(mfrow = c(1,2))
+            show.detsurf(fit)
+            show.detsurf(fit,surface = FALSE)    
+        }else{
+            plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+            text(1,1,paste("convergence issues try advanced options"),col = "grey")
+        }
+    })
+    output$detlocs <- renderPlot({
+        fit <- fit()
+        if(class(fit)[1]=="ascr"){
+            par(mfrow = c(1,2))
+            show.detfn(fit)
             validate(need(input$call.num,"please provide a call number"))
             if(input$call.num > nrow(fit$args$capt$bincapt)){
-                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                show.detsurf(fit)
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
-                show.detfn(fit)
+                text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "grey")
             }else{
-                layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                show.detsurf(fit)
                 locations(fit,input$call.num)
                 legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
-                show.detfn(fit)
             }
         }else{
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-            text(1,1,paste("convergence issues"),col = "red",cex = 2)
+            text(1,1,paste("convergence issues try advanced options"),col = "grey")
         }
-    },width = 700,height = 700)
+    })
+    
     ## code to produce downloadable objects (i.e., plots and report)
     output$downloadMask <- downloadHandler(
       filename = "ascrMask.png",
       content = function(file) {
           png(file)
-          
           traps <- traps()
           traps <- as.matrix(cbind(traps$x,traps$y))
           mask <- create.mask(traps,input$buffer,input$spacing)
           plot.mask(mask,traps)
           dev.off()
       })
-    output$downloadModelPlot <- downloadHandler(
-        filename = "ascrModelPlots.png",
+    output$downloadSurfPlot <- downloadHandler(
+        filename = "ascr_detection_surface_plot.png",
         content = function(file) {
             png(file)
             fit <- fit()
             if(class(fit)[1]=="ascr"){
-                validate(need(input$call.num,"please provide a call number"))
-                if(input$call.num > nrow(fit$args$capt$bincapt)){
-                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                    show.detsurf(fit)
-                    plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                    text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "red",cex = 2)
-                    show.detfn(fit)
-                }else{
-                    layout(matrix(c(1,1,1,2,2,2,1,1,1,2,2,2,3,3,3,3,3,3),byrow = TRUE,ncol = 6))
-                    show.detsurf(fit)
-                    locations(fit,input$call.num)
-                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
-                    show.detfn(fit)
-                }
+                show.detsurf(fit)
             }else{
-                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                text(1,1,paste("convergence issues"),col = "red",cex = 2)
+                NULL
+            }
+            dev.off()
+        })
+    output$downloadContPlot <- downloadHandler(
+        filename = "ascr_detection_contour_plot.png",
+        content = function(file) {
+            png(file)
+            fit <- fit()
+            if(class(fit)[1]=="ascr"){
+                show.detsurf(fit,surface = FALSE)
+            }else{
+                NULL
+            }
+            dev.off()
+        })
+    output$downloadDetPlot <- downloadHandler(
+        filename = "ascr_detection_function_plot.png",
+        content = function(file) {
+            png(file)
+            fit <- fit()
+            if(class(fit)[1]=="ascr"){
+                show.detfn(fit)
+            }else{
+                NULL
             }
             dev.off()
         })
