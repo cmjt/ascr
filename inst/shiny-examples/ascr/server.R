@@ -6,20 +6,32 @@ library(ascr)
 shinyServer(function(input, output,session) {
     ## read in input data
     traps <- reactive({
-        req(input$file1)
+        if(input$example == TRUE){
+            file1 <- system.file("inst/shiny-examples/ascr/data/exampletraps.csv", package = "ascr")
+            traps <- read.csv(file1)
 
-        traps <- read.csv(input$file1$datapath,
-                          header = input$header,
-                          sep = input$sep,
-                          quote = input$quote)
+        }else{
+            req(input$file1)
+            
+            traps <- read.csv(input$file1$datapath,
+                              header = input$header,
+                              sep = input$sep,
+                              quote = input$quote)
+        }
     })
     detections <- reactive({
+        if(input$example == TRUE){
+            file2 <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
+            detections <- read.csv(file2)
+
+        }else{
          req(input$file2)
 
          detections <- read.csv(input$file2$datapath,
                                 header = input$header,
                                 sep = input$sep,
                                 quote = input$quote)
+         }
     })
     # output trap locations
   output$traps <- renderTable({
@@ -69,7 +81,7 @@ shinyServer(function(input, output,session) {
     },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
     # chage buffer slider based on trap range
     observe({
-        infile <- input$file1 # user input file upload
+        infile <- traps()# user input file upload
         if(!is.null(infile)) {
             traps <- traps()
             maxdistance <- 4*diff(range(traps$x,traps$y)) 
@@ -79,7 +91,7 @@ shinyServer(function(input, output,session) {
    
     # chage spacing slider based on trap range
     observe({
-        infile <- input$file1 # user input file upload
+        infile <- detections() # user input file upload
         if(!is.null(infile)) {
             traps <- traps()
             maxdistance <- diff(range(traps$x,traps$y))/4

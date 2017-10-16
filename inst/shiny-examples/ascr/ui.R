@@ -20,6 +20,7 @@ shinyUI(fluidPage(
     # Sidebar panel for inputs ----
     sidebarPanel(
         h3(tags$b("Read in data")),
+        actionLink("example", "Load example data"),
                                         # Input: Select a csv file of trap locations
         fileInput("file1", "Choose CSV file of trap locations",
                   multiple = TRUE,
@@ -27,13 +28,12 @@ shinyUI(fluidPage(
                              "text/comma-separated-values,text/plain",
                              ".csv")),
         
-                                        # Input: Select a csv file of detections
         fileInput("file2", "Choose CSV file of detections",
                   multiple = TRUE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv")),
-
+        
                                         # Input: Checkbox if file1 has header ----
         checkboxInput("header", "Header", TRUE),
 
