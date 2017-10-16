@@ -76,6 +76,7 @@ shinyServer(function(input, output,session) {
             updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2) 
         }
     })
+   
     # chage spacing slider based on trap range
     observe({
         infile <- input$file1 # user input file upload
