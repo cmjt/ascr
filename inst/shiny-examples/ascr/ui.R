@@ -1,3 +1,4 @@
+library(shinycssloaders)
 
 shinyUI(fluidPage(
     
@@ -141,7 +142,7 @@ shinyUI(fluidPage(
                                               column(width = 4,
                                                      h4("Raw data"),
                                                      tableOutput("traps")),
-                                              column(width = 4,
+                                              column(width = 4, 
                                                      h4("Trap locations"),
                                                      plotOutput("trapsPlot"))
                                           )),
@@ -150,10 +151,13 @@ shinyUI(fluidPage(
                                               column(width = 4,
                                                      h4("Raw data"),
                                                      tableOutput("detections")),
-                                              column(width = 4,
+                                              column(width = 4, 
                                                      h4("Capture history matrix"),
                                                      tableOutput("capt.hist")))))),
-                    tabPanel("Mask",plotOutput("maskPlot")),
+                    tabPanel("Mask",
+                             column(width = 12, align="center",
+                                    withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
+                            ),
                     tabPanel("Model",
                              fluidRow(
                                  column(width = 3,
