@@ -51,11 +51,11 @@ shinyUI(fluidPage(
         h3(tags$b("Build mask")),
          # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
         sliderInput("buffer", "Choose mask buffer (m):",
-                    min = 0, max = 10000,
+                    min = 1, max = 10000,
                     value = 1000),
          # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
         sliderInput("spacing", "Choose mask spacing (m):",
-                    min = 0, max = 1000,
+                    min = 1, max = 1000,
                     value = 250),
         downloadButton('downloadMask', 'Mask Plot'),
                                         # horizontal lines before model options,
@@ -97,9 +97,9 @@ shinyUI(fluidPage(
         conditionalPanel(
             condition = "input.advanced == true",
             checkboxGroupInput("advancedOptions", "Advanced options",
-                               choices = list("increase mask buffer" ,
-                                              "chose parameter starting values",
-                                              "build finer mask for plotting"),inline = TRUE),
+                               choices = list("bearings in degrees (default radians)" = "bd","increase mask buffer"  = "inc",
+                                              "chose parameter starting values" = "sv",
+                                              "build finer mask for plotting" = "fine"),inline = TRUE),
             conditionalPanel(
                 condition = "input.advancedOptions.includes('chose parameter starting values')",
                 uiOutput("startParamSelection"),
@@ -125,7 +125,10 @@ shinyUI(fluidPage(
             ),
             downloadButton('downloadModel', 'Save Model .RData file')
         ),
-        downloadButton("report", "Generate Basic Report")
+        downloadButton("report", "Generate Basic Report"),
+        numericInput("anispeed","Chose speed of animation for report",
+                     min = 0.1,max = 5,step = 0.1,
+                     value = 1)
         
     ),
                                         # Main panel for displaying outputs ----

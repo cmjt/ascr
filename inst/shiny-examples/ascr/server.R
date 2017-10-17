@@ -82,32 +82,30 @@ shinyServer(function(input, output,session) {
         }
     },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
     # chage buffer slider based on trap range
+    # chage spacing slider based on trap range
     observe({
-        infile <- traps()# user input file upload
-        if(!is.null(infile) & !("increase mask buffer" %in% input$advancedOptions)) {
+        infile <- traps() # user input file upload
+        if(!is.null(infile)) {
             traps <- traps()
+            maxdistance <- diff(range(traps$x,traps$y))/4
+            updateSliderInput(session, "spacing", max = maxdistance, value = maxdistance/2)
             maxdistance <- 4*diff(range(traps$x,traps$y))
             updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2) 
         }
     })
+    # change buffer sliding in advanced increase buffer option chosen
     observe({
+        if("increase mask buffer" %in% input$advancedOptions) {
         maxdistance <- input$incmaskbuffer
         updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2)
-    })
-    # chage spacing slider based on trap range
-    observe({
-        infile <- detections() # user input file upload
-        if(!is.null(infile)) {
-            traps <- traps()
-            maxdistance <- diff(range(traps$x,traps$y))/4
-            updateSliderInput(session, "spacing", max = maxdistance, value = maxdistance/2) 
         }
-        })
+    })
     # plot of mask 
     output$maskPlot <- renderPlot({
         traps <- traps()
         traps <- as.matrix(cbind(traps$x,traps$y))
         validate(need(input$buffer > input$spacing,"The mask buffer cannot be less than the spacing"))
+        validate(need(input$buffer/input$spacing < 80, "Infeasibly fine mask"))
         mask <- create.mask(traps,input$buffer,input$spacing)
         plot.mask(mask,traps)
         
@@ -194,6 +192,16 @@ shinyServer(function(input, output,session) {
             
             detections <- detections()
             traps <- traps()
+            
+            if("bearing" %in% names(detections)){
+                validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
+                              "bd" %in% input$advancedOptions,
+                              "Bearings should be in radians. To change see advanced options."))
+            }
+            if("bd" %in% input$advancedOptions){
+                detections$bearing <- (2*pi/360)*detections$bearing
+            }
+           
             traps <- as.matrix(cbind(traps$x,traps$y))
             mask <- create.mask(traps,input$buffer,input$spacing)
             nms <- names(detections)
@@ -266,7 +274,7 @@ shinyServer(function(input, output,session) {
     output$locs <- renderPlot({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
-            validate(need(input$call.num,"please provide a call number"))
+            validate(need(input$call.num,"Please provide a call number"))
             if(input$call.num > nrow(fit$args$capt$bincapt)){
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
                 text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "grey")
@@ -363,7 +371,8 @@ shinyServer(function(input, output,session) {
             # Set up parameters to pass to Rmd document
             params <- list(buffer = input$buffer,
                            spacing = input$spacing,
-                           fit = fit())
+                           fit = fit(),
+                           anispeed = input$anispeed)
             # Knit the document, passing in the `params` list, and eval it in a
             # child of the global environment (this isolates the code in the document
             # from the code in this app).
