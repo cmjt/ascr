@@ -1,7 +1,8 @@
 
 shinyUI(fluidPage(
+    
   # App title ----
-  titlePanel("acoustic spatial capture-recapture (ascr)"),
+    titlePanel("acoustic spatial capture-recapture (ascr)"),
 
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -81,24 +82,23 @@ shinyUI(fluidPage(
                                         # fix shape.2 to what value
         uiOutput("fixedshape.2"),
                                         # horizontal lines before choosing call number for estimated group location
-        tags$hr(),
-                                        # Input: integer of call number to estimate group location 
+        
+        
+        actionButton("fit", "Fit model"),
+        hr(),
         numericInput("call.num", "Choose call number to display in estimated location plot:",
                      min = 1, max = 1000,step = 1,
                      value = 1),
-                                        # horizontal line  before action button
-        tags$hr(),
-        actionButton("fit", "Fit model"),
-        hr(),
         downloadButton('downloadSurfPlot', 'Detection surface plot'),
         downloadButton('downloadContPlot', 'Detection contour plot'),
         downloadButton('downloadDetPlot', 'Detection function plot'),                               
         h3(tags$b("Other")),
-        checkboxInput("advanced", "Advanced options"),
+        checkboxInput("advanced", "Show advanced options"),
         conditionalPanel(
             condition = "input.advanced == true",
-            radioButtons("advancedOptions", "Advanced options",
-                        list("increase mask buffer", "chose parameter starting values","get log", "print modelling trace"))
+            checkboxGroupInput("advancedOptions", "Advanced options",
+                         choices = list("increase mask buffer", "chose parameter starting values"),inline = TRUE),
+            downloadButton('downloadModel', 'Save Model .RData file')
         ),
         downloadButton("report", "Generate Basic Report")
         
@@ -145,8 +145,7 @@ shinyUI(fluidPage(
                              fluidRow(
                                  h4("Detection surface and location estimates"),
                                  plotOutput("detlocs")
-                             ) 
-                    )
-    )
-  )
-)))
+                             )
+                    ))
+    ))
+))

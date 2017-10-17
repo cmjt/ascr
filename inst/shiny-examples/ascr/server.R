@@ -4,6 +4,8 @@ library(ascr)
 
 
 shinyServer(function(input, output,session) {
+    
+    
     ## read in input data
     traps <- reactive({
         if(input$example == TRUE){
@@ -136,29 +138,36 @@ shinyServer(function(input, output,session) {
                          )
     })
     
-    # Fit model based on inputs of user and output parameter estimates and plots
+                                        # Fit model based on inputs of user and output parameter estimates and plots
+    
+    
     fit <- eventReactive(input$fit,{
         withProgress(message = 'Fitting model', value = 0,{
-        
-        detections <- detections()
-        traps <- traps()
-        traps <- as.matrix(cbind(traps$x,traps$y))
-        mask <- create.mask(traps,input$buffer,input$spacing)
-        nms <- names(detections)
-        
-        capt.hist <- get.capt.hist(detections)
-                
-        param.fix <- input$parameter
-        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                                scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-        idx <- match(param.fix,names(param.fix.value))
-        fix <- param.fix.value[idx]
-        fit <- NULL
-        fit <- tryCatch({fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                                  fix = fix)},
-                        warning = function(w) print("fit.ascr convergence issues"))
+            
+            detections <- detections()
+            traps <- traps()
+            traps <- as.matrix(cbind(traps$x,traps$y))
+            mask <- create.mask(traps,input$buffer,input$spacing)
+            nms <- names(detections)
+            
+            capt.hist <- get.capt.hist(detections)
+            
+            param.fix <- input$parameter
+            param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                                    scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+            idx <- match(param.fix,names(param.fix.value))
+            fix <- param.fix.value[idx]
+            fit <- NULL
+            fit <- tryCatch({
+                fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                         fix = fix) },
+                warning = function(w) print("fit.ascr convergence issues"))
+            
+            
         })
     })
+    
+
     # coefficients
     output$coefs <- renderTable({
         fit <- fit()
@@ -171,12 +180,16 @@ shinyServer(function(input, output,session) {
     # AIC
     output$AIC <- renderTable({
         fit <- fit()
-        data.frame(AIC = AIC(fit))
+        if(class(fit)[1]=="ascr"){
+            data.frame(AIC = AIC(fit))
+        }
     },rownames = FALSE)
    # log Likelohood
     output$LL <- renderTable({
-        fit <- fit()
-        data.frame(logLik = fit$loglik)
+         fit <- fit()
+         if(class(fit)[1]=="ascr"){
+             data.frame(logLik = fit$loglik)
+         }
     },rownames = FALSE)
     # Detection function plots and location estimate plots
     
@@ -257,7 +270,13 @@ shinyServer(function(input, output,session) {
             }
             dev.off()
         })
-    
+    output$downloadModel <- downloadHandler(
+        filename = paste("ascr_",date(),".RData",sep = ""),
+        content = function(file){
+            fit <- fit()
+            save(fit,file = file)
+        }
+    )
     output$report <- downloadHandler(
         # For PDF output, change this to "report.pdf"
         filename = "report.html",
