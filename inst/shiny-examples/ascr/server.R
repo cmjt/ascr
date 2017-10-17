@@ -114,31 +114,76 @@ shinyServer(function(input, output,session) {
         params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale"),
                             c("hn","hn","hr","hr","hr","th","th"))
         checkboxGroupInput("parameter", "Fix which parameters:",
-                           choices = as.character(params.fix[params.fix[,2]==input$select,1]),inline = TRUE)
+                           choices = as.character(params.fix[params.fix[,2] == input$select,1]),inline = TRUE)
        
     })
     output$fixedg0 <- renderUI({
         conditionalPanel(condition = "input.parameter.includes('g0')",       
-                         numericInput("g0","fix g0 to:",value=1,min=1,max=100,step=1)
+                         numericInput("g0","fix g0 to:",value = 1,min = 1,max = 100,step = 1)
                          )
     })
     output$fixedsigma <- renderUI({
         conditionalPanel(condition = "input.parameter.includes('sigma')",       
-                         numericInput("sigma","fix sigma to:",value=1,min=1,max=100,step=1)
+                         numericInput("sigma","fix sigma to:",value = 1,min = 1,max = 100,step = 1)
                          )
     })
     output$fixedz <- renderUI({
         conditionalPanel(condition = "input.parameter.includes('z')",       
-                         numericInput("z","fix z to:",value=1,min=1,max=100,step=1)
+                         numericInput("z","fix z to:",value = 1,min = 1,max = 100,step = 1)
                          )
     })
     output$fixedshape <- renderUI({
         conditionalPanel(condition = "input.parameter.includes('shape')",       
-                         numericInput("shape","fix shape to:",value=1,min=1,max=100,step=1)
+                         numericInput("shape","fix shape to:",value = 1,min = 1,max = 100,step = 1)
                          )
     })
+
+    output$startParamSelection <- renderUI({
+        params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale"),
+                            c("hn","hn","hr","hr","hr","th","th"))
+        checkboxGroupInput("parset", "Set starting values for which parameters:",
+                           choices = as.character(params.fix[params.fix[,2] == input$select,1]),inline = TRUE)
+       
+    })
+    output$svg0 <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('g0') && !input.parameter.includes('g0')",
+                         numericInput("svg0","g0 start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of g0 ensure it isn't already fixed
+     output$svsigma <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('sigma') && !input.parameter.includes('sigma')",
+                         numericInput("svsigma","sigma start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of sigma ensure it isn't already fixed
+    output$svz <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('z') && !input.parameter.includes('z')",
+                         numericInput("svz","z start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of z ensure it isn't already fixed
+    output$svshape <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('shape') && !input.parameter.includes('shape')",
+                         numericInput("svshape","shape start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of shape ensure it isn't already fixed
+    output$svscale <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('scale') && !input.parameter.includes('scale')",
+                         numericInput("svscale","scale start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of scale ensure it isn't already fixed
+
+    output$svshape.1 <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('shape.1') && !input.parameter.includes('shape.1')",
+                         numericInput("svshape.1","shape.1 start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of shape.1 ensure it isn't already fixed
+    output$svshape.2 <- renderUI({
+        conditionalPanel(condition = "input.parset.includes('shape.2') && !input.parameter.includes('shape.2')",
+                         numericInput("svshape.2","shape.2 start value:",value = 1,min = 1,max = 100,step = 1)
+                         )              
+    }) # set starting value of shape.2 ensure it isn't already fixed
+
     
-                                        # Fit model based on inputs of user and output parameter estimates and plots
+    # Fit model based on inputs of user and output parameter estimates and plots
     
     
     fit <- eventReactive(input$fit,{

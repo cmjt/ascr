@@ -49,11 +49,11 @@ shinyUI(fluidPage(
                      selected = "all",inline = TRUE),
                                         
          h3(tags$b("Build mask")),
-                                        # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
+         # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
         sliderInput("buffer", "Choose mask buffer (m):",
                     min = 0, max = 10000,
                     value = 1000),
-                                        # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
+         # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
         sliderInput("spacing", "Choose mask spacing (m):",
                     min = 0, max = 1000,
                     value = 250),
@@ -97,7 +97,18 @@ shinyUI(fluidPage(
         conditionalPanel(
             condition = "input.advanced == true",
             checkboxGroupInput("advancedOptions", "Advanced options",
-                         choices = list("increase mask buffer", "chose parameter starting values"),inline = TRUE),
+                               choices = list("increase mask buffer", "chose parameter starting values"),inline = TRUE),
+            conditionalPanel(
+                condition = "input.advancedOptions.includes('chose parameter starting values')",
+                uiOutput("startParamSelection"),
+                uiOutput("svg0"), # chose g0 sv
+                uiOutput("svsigma"), # chose sigma sv
+                uiOutput("svz"), # chose z sv
+                uiOutput("svshape"), # chose shape sv
+                uiOutput("svscale"), # chose scale sv
+                uiOutput("svshape.1"), # chose shape.1 sv
+                uiOutput("svshape.2") # chose shape.2 sv
+                ),
             downloadButton('downloadModel', 'Save Model .RData file')
         ),
         downloadButton("report", "Generate Basic Report")
