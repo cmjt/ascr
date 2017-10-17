@@ -196,16 +196,23 @@ shinyServer(function(input, output,session) {
             nms <- names(detections)
             
             capt.hist <- get.capt.hist(detections)
-            
+            ## fixed values
             param.fix <- input$parameter
             param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
                                     scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
             idx <- match(param.fix,names(param.fix.value))
             fix <- param.fix.value[idx]
+            ## starting values
+            param.sv <- input$parset
+            param.sv.value <- list(g0 = input$svg0,sigma = input$svsigma,z = input$svz,svshape = input$svshape,
+                                    scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
+            idsv <- match(param.sv,names(param.sv.value))
+            sv <- param.sv.value[idsv]
+            print(sv)
             fit <- NULL
             fit <- tryCatch({
                 fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                         fix = fix) },
+                         fix = fix, sv = sv) },
                 warning = function(w) print("fit.ascr convergence issues"))
             
             
