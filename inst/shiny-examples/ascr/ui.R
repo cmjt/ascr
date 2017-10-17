@@ -48,7 +48,7 @@ shinyUI(fluidPage(
                                  Head = "head"),
                      selected = "all",inline = TRUE),
                                         
-         h3(tags$b("Build mask")),
+        h3(tags$b("Build mask")),
          # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
         sliderInput("buffer", "Choose mask buffer (m):",
                     min = 0, max = 10000,
@@ -97,7 +97,7 @@ shinyUI(fluidPage(
         conditionalPanel(
             condition = "input.advanced == true",
             checkboxGroupInput("advancedOptions", "Advanced options",
-                               choices = list("increase mask buffer", "chose parameter starting values"),inline = TRUE),
+                               choices = list("increase mask buffer" , "chose parameter starting values"),inline = TRUE),
             conditionalPanel(
                 condition = "input.advancedOptions.includes('chose parameter starting values')",
                 uiOutput("startParamSelection"),
@@ -108,6 +108,12 @@ shinyUI(fluidPage(
                 uiOutput("svscale"), # chose scale sv
                 uiOutput("svshape.1"), # chose shape.1 sv
                 uiOutput("svshape.2") # chose shape.2 sv
+            ),
+            conditionalPanel(
+                condition = "input.advancedOptions.includes('increase mask buffer')",
+                numericInput("incmaskbuffer","Chose higher bound for the mask buffer",
+                             min = 1, max = 10000000,step = 1,
+                             value = 1000)
                 ),
             downloadButton('downloadModel', 'Save Model .RData file')
         ),

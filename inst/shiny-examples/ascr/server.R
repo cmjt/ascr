@@ -84,13 +84,16 @@ shinyServer(function(input, output,session) {
     # chage buffer slider based on trap range
     observe({
         infile <- traps()# user input file upload
-        if(!is.null(infile)) {
+        if(!is.null(infile) & !("increase mask buffer" %in% input$advancedOptions)) {
             traps <- traps()
-            maxdistance <- 4*diff(range(traps$x,traps$y)) 
+            maxdistance <- 4*diff(range(traps$x,traps$y))
             updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2) 
         }
     })
-   
+    observe({
+        maxdistance <- input$incmaskbuffer
+        updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2)
+    })
     # chage spacing slider based on trap range
     observe({
         infile <- detections() # user input file upload
@@ -208,7 +211,6 @@ shinyServer(function(input, output,session) {
                                     scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
             idsv <- match(param.sv,names(param.sv.value))
             sv <- param.sv.value[idsv]
-            print(sv)
             fit <- NULL
             fit <- tryCatch({
                 fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
