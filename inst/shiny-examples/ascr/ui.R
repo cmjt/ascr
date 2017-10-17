@@ -162,22 +162,22 @@ shinyUI(fluidPage(
                              fluidRow(
                                  column(width = 3,
                                         h4("Parameter values"),
-                                        tableOutput("coefs")),
+                                         withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
                                  column(width = 3,
                                         h4("Model info"),
-                                        tableOutput("AIClL")),
+                                         withSpinner(tableOutput("AIClL"),type = 5,color = "#D3D3D3")),
                                  column(width = 6,
                                         h4("Detection function"),
-                                        plotOutput("detfn"))
+                                         withSpinner(plotOutput("detfn"),type = 5,color = "#D3D3D3"))
                              ),
                              fluidRow(
                                  h4("Detection surface"),
-                                 plotOutput("detectionsurf")
+                                  withSpinner(plotOutput("detectionsurf"),type = 5,color = "#D3D3D3")
                              ),
                              fluidRow(
                                  h4("Location estimates"),
                                  column(12, align="center",
-                                        plotOutput("locs")
+                                         withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
                                         )
                              )
                     ))

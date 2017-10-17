@@ -3,7 +3,6 @@ library(shiny)
 library(ascr)
 
 
-
 shinyServer(function(input, output,session) {
     
     
@@ -189,45 +188,46 @@ shinyServer(function(input, output,session) {
     
     
     fit <- eventReactive(input$fit,{
-        withProgress(message = 'Fitting model', value = 0,{
-            
-            detections <- detections()
-            traps <- traps()
-            
-            if("bearing" %in% names(detections)){
-                validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
-                              "bd" %in% input$advancedOptions,
-                              "Bearings should be in radians. To change see advanced options."))
-            }
-            if("bd" %in% input$advancedOptions){
-                detections$bearing <- (2*pi/360)*detections$bearing
-            }
-           
-            traps <- as.matrix(cbind(traps$x,traps$y))
-            mask <- create.mask(traps,input$buffer,input$spacing)
-            nms <- names(detections)
-            
-            capt.hist <- get.capt.hist(detections)
-            ## fixed values
-            param.fix <- input$parameter
-            param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                                    scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-            idx <- match(param.fix,names(param.fix.value))
-            fix <- param.fix.value[idx]
-            ## starting values
-            param.sv <- input$parset
-            param.sv.value <- list(g0 = input$svg0,sigma = input$svsigma,z = input$svz,svshape = input$svshape,
-                                    scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
-            idsv <- match(param.sv,names(param.sv.value))
-            sv <- param.sv.value[idsv]
-            fit <- NULL
-            fit <- tryCatch({
-                fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                         fix = fix, sv = sv) },
-                warning = function(w) print("fit.ascr convergence issues"))
-            
-            
-        })
+        withProgress(message = 'Fitting model', value = 0,
+                     style = "old", detail = "Might take a while...",
+                     {
+                         detections <- detections()
+                         traps <- traps()
+                         
+                         if("bearing" %in% names(detections)){
+                             validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
+                                           "bd" %in% input$advancedOptions,
+                                           "Bearings should be in radians. To change see advanced options."))
+                         }
+                         if("bd" %in% input$advancedOptions){
+                             detections$bearing <- (2*pi/360)*detections$bearing
+                         }
+                         
+                         traps <- as.matrix(cbind(traps$x,traps$y))
+                         mask <- create.mask(traps,input$buffer,input$spacing)
+                         nms <- names(detections)
+                         
+                         capt.hist <- get.capt.hist(detections)
+                         ## fixed values
+                         param.fix <- input$parameter
+                         param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                                                 scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+                         idx <- match(param.fix,names(param.fix.value))
+                         fix <- param.fix.value[idx]
+                         ## starting values
+                         param.sv <- input$parset
+                         param.sv.value <- list(g0 = input$svg0,sigma = input$svsigma,z = input$svz,svshape = input$svshape,
+                                                scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
+                         idsv <- match(param.sv,names(param.sv.value))
+                         sv <- param.sv.value[idsv]
+                         fit <- NULL
+                         fit <- tryCatch({
+                             fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                                      fix = fix, sv = sv) },
+                             warning = function(w) print("fit.ascr convergence issues"))
+                         
+                         
+                     })
     })
     
 
@@ -363,7 +363,7 @@ shinyServer(function(input, output,session) {
         filename = "report.html",
         content = function(file) {
             withProgress(message = 'Generating report', value = 0,style = "old",
-                         detail = "Processing data and creating report...",
+                         detail = "Creating report...",
                          {
             # Copy the report file to a temporary directory before processing it, in
             # case we don't have write permissions to the current working dir (which
