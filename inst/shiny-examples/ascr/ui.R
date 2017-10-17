@@ -97,7 +97,9 @@ shinyUI(fluidPage(
         conditionalPanel(
             condition = "input.advanced == true",
             checkboxGroupInput("advancedOptions", "Advanced options",
-                               choices = list("increase mask buffer" , "chose parameter starting values"),inline = TRUE),
+                               choices = list("increase mask buffer" ,
+                                              "chose parameter starting values",
+                                              "build finer mask for plotting"),inline = TRUE),
             conditionalPanel(
                 condition = "input.advancedOptions.includes('chose parameter starting values')",
                 uiOutput("startParamSelection"),
@@ -114,7 +116,13 @@ shinyUI(fluidPage(
                 numericInput("incmaskbuffer","Chose higher bound for the mask buffer",
                              min = 1, max = 10000000,step = 1,
                              value = 1000)
-                ),
+            ),
+            conditionalPanel(
+                condition = "input.advancedOptions.includes('build finer mask for plotting')",
+                numericInput("plotmaskspacing","Chose mask spacing (plotting purposes only)",
+                             min = 1, max = 10000000,step = 1,
+                             value = 250)
+            ),
             downloadButton('downloadModel', 'Save Model .RData file')
         ),
         downloadButton("report", "Generate Basic Report")
@@ -145,23 +153,25 @@ shinyUI(fluidPage(
                     tabPanel("Mask",plotOutput("maskPlot")),
                     tabPanel("Model",
                              fluidRow(
-                                 column(width = 4,
+                                 column(width = 3,
                                         h4("Parameter values"),
                                         tableOutput("coefs")),
-                                 column(width = 4,
-                                        h4("Akaike information criterion (AIC)"),
-                                        tableOutput("AIC")),
-                                 column(width = 4,
-                                        h4("log-Likelihood value"),
-                                        tableOutput("LL"))
+                                 column(width = 3,
+                                        h4("Model info"),
+                                        tableOutput("AIClL")),
+                                 column(width = 6,
+                                        h4("Detection function"),
+                                        plotOutput("detfn"))
                              ),
                              fluidRow(
                                  h4("Detection surface"),
                                  plotOutput("detectionsurf")
                              ),
                              fluidRow(
-                                 h4("Detection surface and location estimates"),
-                                 plotOutput("detlocs")
+                                 h4("Location estimates"),
+                                 column(12, align="center",
+                                        plotOutput("locs")
+                                        )
                              )
                     ))
     ))

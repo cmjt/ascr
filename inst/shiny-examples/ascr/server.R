@@ -231,20 +231,15 @@ shinyServer(function(input, output,session) {
                 return(res)
             }
     },rownames = TRUE)
-    # AIC
-    output$AIC <- renderTable({
+    # AIC and log Likelihood
+    output$AIClL <- renderTable({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
-            data.frame(AIC = AIC(fit))
+            tab <- rbind(AIC = AIC(fit),logLik = fit$loglik)
+            colnames(tab) <- "value"
+            return(tab)
         }
-    },rownames = FALSE)
-   # log Likelohood
-    output$LL <- renderTable({
-         fit <- fit()
-         if(class(fit)[1]=="ascr"){
-             data.frame(logLik = fit$loglik)
-         }
-    },rownames = FALSE)
+    },rownames = TRUE)
     # Detection function plots and location estimate plots
     
     output$detectionsurf <- renderPlot({
@@ -258,24 +253,47 @@ shinyServer(function(input, output,session) {
             text(1,1,paste("convergence issues try advanced options"),col = "grey")
         }
     })
-    output$detlocs <- renderPlot({
+    output$detfn <- renderPlot({
+        fit <- fit()
+        fit <- fit()
+            if(class(fit)[1]=="ascr"){
+                show.detfn(fit)
+            }else{
+                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
+                text(1,1,paste("convergence issues try advanced options"),col = "grey")
+            }
+    })
+    output$locs <- renderPlot({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
-            par(mfrow = c(1,2))
-            show.detfn(fit)
             validate(need(input$call.num,"please provide a call number"))
             if(input$call.num > nrow(fit$args$capt$bincapt)){
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
                 text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "grey")
             }else{
-                locations(fit,input$call.num)
-                legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                if("build finer mask for plotting" %in% input$advancedOptions){
+                    traps <- traps()
+                    validate(need(input$plotmaskspacing,
+                                  "Please provide a spacing for the (plotting) mask or uncheck this option"))
+                    validate(need(input$plotmaskspacing > 0,
+                                  "Cannnot have a spacing of zero meters"))
+                    validate(need(input$buffer > input$plotmaskspacing,
+                                  "The mask buffer cannot be less than the (plotting) mask spacing"))
+                    validate(need(input$plotmaskspacing < input$spacing,
+                                  "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
+                    msk <- create.mask(traps,input$buffer,input$plotmaskspacing)
+                    locations(fit,input$call.num,mask = msk)
+                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                }else{
+                    locations(fit,input$call.num)
+                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                }
             }
         }else{
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
             text(1,1,paste("convergence issues try advanced options"),col = "grey")
         }
-    })
+    },width = 700,height = 700)
     
     ## code to produce downloadable objects (i.e., plots and report)
     output$downloadMask <- downloadHandler(
