@@ -15,16 +15,16 @@ shinyUI(fluidPage(
             shinyjs::useShinyjs(),
             id = "side-panel",
             h3(tags$b("Read in data")),
-            checkboxInput("example", "Load single trap example data"), # example
+            checkboxInput("example", "Load single trap example data",value = FALSE), # example
                                         # Input: Select a csv file of trap locations
             fileInput("file1", "Choose CSV file of trap locations",
-                      multiple = TRUE,
+                      multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
                                  ".csv")),
             
             fileInput("file2", "Choose CSV file of detections",
-                      multiple = TRUE,
+                      multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
                                  ".csv")),
@@ -62,7 +62,7 @@ shinyUI(fluidPage(
             sliderInput("spacing", "Choose mask spacing (m):",
                         min = 1, max = 1000,
                         value = 250),
-            downloadButton('downloadMask', 'Mask Plot'),
+            downloadButton('downloadMask', 'Mask plot'),
                                         # horizontal lines before model options,
             
             h3(tags$b("Modelling")),
@@ -100,12 +100,11 @@ shinyUI(fluidPage(
                                         # Other stuff
             h3(tags$b("Other")),
             
-            downloadButton("report", "Generate Basic Report"),
+            downloadButton("report", "Generate basic report"),
             numericInput("anispeed","Chose speed of animation for report",
                          min = 0.1,max = 5,step = 0.1,
                          value = 1),
-            actionButton("reset_input", "Reset Input"),
-            checkboxInput("clear", "Clear Plots and Tables", FALSE),
+            actionButton("reset_input", "Reset sidebar",icon("refresh")),
             checkboxInput("advanced", "Show advanced options"),
             conditionalPanel(
                 condition = "input.advanced == true",
@@ -136,7 +135,7 @@ shinyUI(fluidPage(
                                  min = 1, max = 10000000,step = 1,
                                  value = 250)
                 ),
-                downloadButton('downloadModel', 'Save Model .RData file')
+                downloadButton('downloadModel', 'Save model .RData file')
             )
         ),
                                         # Main panel for displaying outputs ----
