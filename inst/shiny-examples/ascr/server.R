@@ -2,25 +2,26 @@
 library(shiny)
 library(ascr)
 
-
 shinyServer(function(input, output,session) {
     
     
     ## read in input data
-    traps <- reactive({
+     traps <- reactive({
         if(input$example == TRUE){
             file <- system.file("inst/shiny-examples/ascr/data/exampletraps.csv", package = "ascr")
             traps <- read.csv(file)
 
         }else{
-            req(input$file1)
+           req(input$file1)
             
-            traps <- read.csv(input$file1$datapath,
-                              header = input$header,
-                              sep = input$sep,
-                              quote = input$quote)
+           traps <- read.csv(input$file1$datapath,
+                             header = input$header,
+                             sep = input$sep,
+                             quote = input$quote)
+           
         }
-    })
+        
+     })
     detections <- reactive({
         if(input$example == TRUE){
             file <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
@@ -37,6 +38,7 @@ shinyServer(function(input, output,session) {
     })
     # output trap locations
     output$traps <- renderTable({
+        req(!input$clear)
         traps <- traps()
         
         if(input$disp == "head") {
@@ -49,7 +51,9 @@ shinyServer(function(input, output,session) {
     striped = TRUE)
                                         # code to plot trap locations
     output$trapsPlot <- renderPlot({
+        req(!input$clear)
         traps <- traps()
+        
         if(!is.null(traps$post)){
             plot(traps$x,traps$y,asp = 1,type = "n",xlab = "Longitude",ylab = "Latitude")
             text(traps$x,traps$y,traps$post,lwd = 2)
@@ -60,7 +64,7 @@ shinyServer(function(input, output,session) {
     
     output$detections <- renderTable({
         detections <- detections()
-
+        req(!input$clear)
         if(input$disp == "head") {
             return(head(detections))
     }else{
@@ -71,6 +75,7 @@ shinyServer(function(input, output,session) {
     striped = TRUE)
 
     output$capt.hist <- renderTable({
+        req(!input$clear)
         detections <- detections()
         capt.hist <- get.capt.hist(detections)
         colnames(capt.hist[[1]]) <- names(table(detections$post))
@@ -103,6 +108,7 @@ shinyServer(function(input, output,session) {
     # plot of mask 
     output$maskPlot <- renderPlot({
         traps <- traps()
+        req(!input$clear)
         traps <- as.matrix(cbind(traps$x,traps$y))
         validate(need(input$buffer > input$spacing,"The mask buffer cannot be less than the spacing"))
         validate(need(input$buffer/input$spacing < 80, "Infeasibly fine mask"))
@@ -191,9 +197,9 @@ shinyServer(function(input, output,session) {
         withProgress(message = 'Fitting model', value = 0,
                      style = "old", detail = "Might take a while...",
                      {
+                         
                          detections <- detections()
                          traps <- traps()
-                         
                          if("bearing" %in% names(detections)){
                              validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
                                            "bd" %in% input$advancedOptions,
@@ -234,15 +240,17 @@ shinyServer(function(input, output,session) {
     # coefficients
     output$coefs <- renderTable({
         fit <- fit()
-            if(class(fit)[1]=="ascr"){
-                res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
-                rownames(res) <- names(coef(fit))
-                return(res)
-            }
+        req(!input$clear)
+        if(class(fit)[1]=="ascr"){
+            res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
+            rownames(res) <- names(coef(fit))
+            return(res)
+        }
     },rownames = TRUE)
     # AIC and log Likelihood
     output$AIClL <- renderTable({
         fit <- fit()
+        req(!input$clear)
         if(class(fit)[1]=="ascr"){
             tab <- rbind(AIC = AIC(fit),logLik = fit$loglik)
             colnames(tab) <- "value"
@@ -253,6 +261,7 @@ shinyServer(function(input, output,session) {
     
     output$detectionsurf <- renderPlot({
         fit <- fit()
+        req(!input$clear)
         if(class(fit)[1]=="ascr"){
             par(mfrow = c(1,2))
             show.detsurf(fit)
@@ -264,7 +273,7 @@ shinyServer(function(input, output,session) {
     })
     output$detfn <- renderPlot({
         fit <- fit()
-        fit <- fit()
+        req(!input$clear)
             if(class(fit)[1]=="ascr"){
                 show.detfn(fit)
             }else{
@@ -274,6 +283,7 @@ shinyServer(function(input, output,session) {
     })
     output$locs <- renderPlot({
         fit <- fit()
+        req(!input$clear)
         if(class(fit)[1]=="ascr"){
             validate(need(input$call.num,"Please provide a call number"))
             if(input$call.num > nrow(fit$args$capt$bincapt)){
@@ -385,7 +395,13 @@ shinyServer(function(input, output,session) {
                                                )
                          })
             
-        })
+        }) 
+    observeEvent(input$reset_input, {
+        updateSliderInput(session, "spacing", max = 1000, value = 250)
+        updateSliderInput(session, "buffer", max =10000, value = 1000)
+        shinyjs::reset("side-panel")
+        
+    })
     session$onSessionEnded(stopApp)
 })
     
