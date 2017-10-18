@@ -135,6 +135,8 @@ shinyUI(fluidPage(
                                         # Main panel for displaying outputs ----
     mainPanel(
         tabsetPanel(type = "tabs",
+                    tabPanel("Details",
+                             includeMarkdown(file.path("text", "details.md"))),
                     tabPanel("Data",
                              tabsetPanel(
                                  tabPanel("Traps",

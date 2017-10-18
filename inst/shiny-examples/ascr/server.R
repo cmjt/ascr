@@ -36,18 +36,18 @@ shinyServer(function(input, output,session) {
          }
     })
     # output trap locations
-  output$traps <- renderTable({
-      traps <- traps()
-   
-    if(input$disp == "head") {
-        return(head(traps))
-    }else{
-        return(traps)
-    }
+    output$traps <- renderTable({
+        traps <- traps()
+        
+        if(input$disp == "head") {
+            return(head(traps))
+        }else{
+            return(traps)
+        }
 
-  },
-  striped = TRUE)
-    # code to plot trap locations
+    },
+    striped = TRUE)
+                                        # code to plot trap locations
     output$trapsPlot <- renderPlot({
         traps <- traps()
         if(!is.null(traps$post)){
@@ -55,9 +55,9 @@ shinyServer(function(input, output,session) {
             text(traps$x,traps$y,traps$post,lwd = 2)
         }else{
             plot(traps$x,traps$y,asp = 1,pch = 4,cex = 2,lwd = 3,xlab = "Longitude",ylab = "Latitude")
-            }
+        }
     })
-        
+    
     output$detections <- renderTable({
         detections <- detections()
 
