@@ -8,4 +8,6 @@ src/ascr.so
 src/block.o
 src/funs.o
 src/secr_nll.o
+inst/shiny-examples/ascr/text/details.Rmd
+
 
