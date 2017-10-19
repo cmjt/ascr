@@ -84,7 +84,7 @@ shinyUI(fluidPage(
                                         # horizontal lines before choosing call number for estimated group location
             
             
-            actionButton("fit", "Fit model",icon("cog")),
+            actionButton("fit", "Fit model",icon("cogs")),
             hidden(p(id = "processing", "Processing...")),
             hr(),
             numericInput("call.num", "Choose call number to display in estimated location plot:",
@@ -139,58 +139,58 @@ shinyUI(fluidPage(
                                         # Main panel for displaying outputs ----
         mainPanel(
             tabsetPanel(type = "tabs",
-                        tabPanel("Details",
+                        tabPanel(h4(icon("pencil"), tags$b("Details")),
                                  includeMarkdown(file.path("text", "details.md"))),
-                        tabPanel("Data",
+                        tabPanel( h4(icon("bar-chart"), tags$b("Data")),
                                  tabsetPanel(
-                                     tabPanel("Traps",
+                                     tabPanel(h5(icon("map-marker"), tags$b("Traps")),
                                               fluidRow(
                                                   column(width = 4,
-                                                         h4("Raw data"),
+                                                         h4(icon("table"),"Raw data"),
                                                          tableOutput("traps")),
                                                   column(width = 4, 
-                                                         h4("Trap locations"),
+                                                         h4(icon("map-marker"),"Trap locations"),
                                                          plotOutput("trapsPlot"))
                                               )),
-                                     tabPanel("Detections",
+                                     tabPanel(h5(icon("map-pin"), tags$b("Detections")),
                                               fluidRow(
                                                   column(width = 4,
-                                                         h4("Raw data"),
+                                                         h4(icon("table"),"Raw data"),
                                                          tableOutput("detections")),
                                                   column(width = 4, 
-                                                         h4("Capture history matrix"),
+                                                         h4(icon("map-pin"),"Capture history matrix"),
                                                          tableOutput("capt.hist")))))),
-                        tabPanel("Mask",
+                        tabPanel(h4(icon("puzzle-piece"), tags$b("Mask")),
                                  column(width = 12, align="center",
                                         withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
                                  ),
-                        tabPanel("Model",
+                        tabPanel(h4(icon("cogs"), tags$b("Model")),
                                  tabsetPanel(
-                                     tabPanel("Output",
+                                     tabPanel(h5(icon("area-chart"), tags$b("Output")),
                                               fluidRow(
                                                   column(width = 3,
-                                                         h4("Parameter values"),
+                                                         h4(icon("pencil-square"),"Parameter values"),
                                                          withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
                                                   column(width = 3,
-                                                         h4("Model info"),
+                                                         h4(icon("info-circle"),"Model info"),
                                                          withSpinner(tableOutput("AIClL"),type = 5,color = "#D3D3D3")),
                                                   column(width = 6,
-                                                         h4("Detection function"),
+                                                         h4(icon("line-chart"),"Detection function"),
                                                          withSpinner(plotOutput("detfn"),type = 5,color = "#D3D3D3"))
                                               ),
                                               fluidRow(
-                                                  h4("Detection surface"),
+                                                  h4(icon("area-chart"),"Detection surface"),
                                                   withSpinner(plotOutput("detectionsurf"),type = 5,color = "#D3D3D3")
                                               ),
                                               fluidRow(class = "locs",
-                                                       h4("Location estimates"),
+                                                       h4(icon("map-signs"),"Location estimates"),
                                                        column(12, align="center",
                                                               withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
                                                               ),
                                                        tags$head(tags$style(".locs{height:700px}"))
                                                        ),
                                               fluidRow(
-                                                  h4("Measurement error distributions"),
+                                                  h4(icon("line-chart"),"Measurement error distributions"),
                                                   column(6, align="center",
                                                          withSpinner(plotOutput("bearing_pdf"),type = 5,color = "#D3D3D3")
                                                          ),
@@ -198,7 +198,7 @@ shinyUI(fluidPage(
                                                          withSpinner(plotOutput("distance_pdf"),type = 5,color = "#D3D3D3")
                                                          )
                                               )),
-                                     tabPanel("R messages",
+                                     tabPanel(h5(icon("paper-plane"), tags$b("R messages")),
                                               pre(id = "console")
                                               ))
                                  )

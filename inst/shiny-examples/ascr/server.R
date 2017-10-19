@@ -268,10 +268,10 @@ shinyServer(function(input, output,session) {
         show("processing") # stuff to disable fitting button
         withConsoleRedirect("console", {
             fit <-  tryCatch({
-            fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                     fix = fix, sv = sv,trace = TRUE) 
+                fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                         fix = fix, sv = sv,trace = TRUE) 
             },warning = function(w) print("fit.ascr convergence issues"))
-            })
+        })
         enable("fit")
         enable("side-panel")
         hide("processing")
