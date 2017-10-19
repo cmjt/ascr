@@ -1,10 +1,11 @@
 library(shinycssloaders)
 library(shinyjs)
-
+library(shinythemes)
 
 
 
 shinyUI(fluidPage(
+    shinythemes::themeSelector(),
     
                                         # App title ----
     titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
