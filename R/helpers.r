@@ -483,7 +483,7 @@ get.capt.hist <- function(data){
     tmp <- data.frame(array = rep(1,nrow(data)), ID = cantor,
                       occasion = occasion, trap = as.numeric(data$post))
     if("bearing" %in% names(data)) {tmp$bearing <- data$bearing}
-    if("distance" %in% names(data)) {tmp$distance <- data$distance}
+    if("distance" %in% names(data)) {tmp$dist <- data$distance}
     tmp <- tmp[order(tmp$ID),]
     capt.hist <- create.capt(tmp,n.traps = length(table(tmp$trap)))
     capt.hist

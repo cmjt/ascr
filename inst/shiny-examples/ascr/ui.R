@@ -2,10 +2,12 @@ library(shinycssloaders)
 library(shinyjs)
 
 
+
+
 shinyUI(fluidPage(
     
                                         # App title ----
-    titlePanel("acoustic spatial capture-recapture (ascr)"),
+    titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
 
                                         # Sidebar layout with input and output definitions ----
     sidebarLayout(
@@ -14,58 +16,51 @@ shinyUI(fluidPage(
         sidebarPanel(
             shinyjs::useShinyjs(),
             id = "side-panel",
-            h3(tags$b("Read in data")),
+            h3(icon("table"), tags$b("Read in data")),
             checkboxInput("example", "Load single trap example data",value = FALSE), # example
-                                        # Input: Select a csv file of trap locations
+            
             fileInput("file1", "Choose CSV file of trap locations",
                       multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
-                                 ".csv")),
+                                 ".csv")),  # Input: Select a csv file of trap locations
             
             fileInput("file2", "Choose CSV file of detections",
                       multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
-                                 ".csv")),
-            
-                                        # Input: Checkbox if file1 has header ----
+                                 ".csv")),  # Input: Select a csv file of detection locations
             checkboxInput("header", "Header", TRUE),
-
-                                        # Input: Select separator ----
             radioButtons("sep", "Separator",
                          choices = c(Comma = ",",
                                      Semicolon = ";",
                                      Tab = "\t"),
                          selected = ",",inline = TRUE),
-
-                                        # Input: Select quotes ----
             radioButtons("quote", "Quote",
                          choices = c(None = "",
                                      "Double Quote" = '"',
                                      "Single Quote" = "'"),
                          selected = '"',inline = TRUE),
 
-
-                                        # Input: Select number of rows to display ----
             radioButtons("disp", "Display",
                          choices = c( All = "all",
                                      Head = "head"),
                          selected = "all",inline = TRUE),
             
-            h3(tags$b("Build mask")),
-                                        # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
+            
+            h3(icon("puzzle-piece"),tags$b("Build mask")),
+            # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
             sliderInput("buffer", "Choose mask buffer (m):",
                         min = 1, max = 10000,
                         value = 1000),
-                                        # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
+            # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
             sliderInput("spacing", "Choose mask spacing (m):",
                         min = 1, max = 1000,
                         value = 250),
             downloadButton('downloadMask', 'Mask plot'),
                                         # horizontal lines before model options,
             
-            h3(tags$b("Modelling")),
+            h3(icon("cogs"),tags$b("Modelling")),
                                         # select box for detetion functions
             selectInput("select", label = "Chose a detection function", 
                         choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th'), 
@@ -89,7 +84,8 @@ shinyUI(fluidPage(
                                         # horizontal lines before choosing call number for estimated group location
             
             
-            actionButton("fit", "Fit model"),
+            actionButton("fit", "Fit model",icon("cog")),
+            hidden(p(id = "processing", "Processing...")),
             hr(),
             numericInput("call.num", "Choose call number to display in estimated location plot:",
                          min = 1, max = 1000,step = 1,
@@ -98,13 +94,15 @@ shinyUI(fluidPage(
             downloadButton('downloadContPlot', 'Detection contour plot'),
             downloadButton('downloadDetPlot', 'Detection function plot'),
                                         # Other stuff
-            h3(tags$b("Other")),
-            
-            downloadButton("report", "Generate basic report"),
+            h3(icon("ellipsis-h"),tags$b("Other")),
             numericInput("anispeed","Chose speed of animation for report",
                          min = 0.1,max = 5,step = 0.1,
                          value = 1),
+            downloadButton("report", "Generate basic report"),
+            hidden(p(id = "proc_report", "Processing report...")),
+            
             actionButton("reset_input", "Reset sidebar",icon("refresh")),
+            actionButton("close", "Shut down",icon("power-off")),
             checkboxInput("advanced", "Show advanced options"),
             conditionalPanel(
                 condition = "input.advanced == true",
@@ -167,27 +165,45 @@ shinyUI(fluidPage(
                                         withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
                                  ),
                         tabPanel("Model",
-                                 fluidRow(
-                                     column(width = 3,
-                                            h4("Parameter values"),
-                                            withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
-                                     column(width = 3,
-                                            h4("Model info"),
-                                            withSpinner(tableOutput("AIClL"),type = 5,color = "#D3D3D3")),
-                                     column(width = 6,
-                                            h4("Detection function"),
-                                            withSpinner(plotOutput("detfn"),type = 5,color = "#D3D3D3"))
-                                 ),
-                                 fluidRow(
-                                     h4("Detection surface"),
-                                     withSpinner(plotOutput("detectionsurf"),type = 5,color = "#D3D3D3")
-                                 ),
-                                 fluidRow(
-                                     h4("Location estimates"),
-                                     column(12, align="center",
-                                            withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
-                                            )
+                                 tabsetPanel(
+                                     tabPanel("Output",
+                                              fluidRow(
+                                                  column(width = 3,
+                                                         h4("Parameter values"),
+                                                         withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
+                                                  column(width = 3,
+                                                         h4("Model info"),
+                                                         withSpinner(tableOutput("AIClL"),type = 5,color = "#D3D3D3")),
+                                                  column(width = 6,
+                                                         h4("Detection function"),
+                                                         withSpinner(plotOutput("detfn"),type = 5,color = "#D3D3D3"))
+                                              ),
+                                              fluidRow(
+                                                  h4("Detection surface"),
+                                                  withSpinner(plotOutput("detectionsurf"),type = 5,color = "#D3D3D3")
+                                              ),
+                                              fluidRow(class = "locs",
+                                                       h4("Location estimates"),
+                                                       column(12, align="center",
+                                                              withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
+                                                              ),
+                                                       tags$head(tags$style(".locs{height:700px}"))
+                                                       ),
+                                              fluidRow(
+                                                  h4("Measurement error distributions"),
+                                                  column(6, align="center",
+                                                         withSpinner(plotOutput("bearing_pdf"),type = 5,color = "#D3D3D3")
+                                                         ),
+                                                  column(6, align="center",
+                                                         withSpinner(plotOutput("distance_pdf"),type = 5,color = "#D3D3D3")
+                                                         )
+                                              )),
+                                     tabPanel("R messages",
+                                              pre(id = "console")
+                                              ))
                                  )
-                                 ))
-        ))
+                        )
+        )
+    )
 ))
+ 

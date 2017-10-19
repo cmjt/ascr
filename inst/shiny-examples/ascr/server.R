@@ -2,6 +2,18 @@
 library(shiny)
 library(ascr)
 
+withConsoleRedirect <- function(containerId, expr) {
+  # Change type="output" to type="message" to catch stderr
+  # (messages, warnings, and errors) instead of stdout.
+  txt <- capture.output(results <- expr, type = "message")
+  if (length(txt) > 0) {
+    insertUI(paste0("#", containerId), where = "beforeEnd",
+             ui = paste0(txt, "\n", collapse = "")
+    )
+  }
+  results
+}
+
 shinyServer(function(input, output,session) {
     
     
@@ -35,6 +47,31 @@ shinyServer(function(input, output,session) {
                                 sep = input$sep,
                                 quote = input$quote)
          }
+    })
+    observe({
+        if(input$example == TRUE){
+            disable("file1")
+            disable("file2")
+            disable("header")
+            disable("sep")
+            disable("quote")
+            hide("file1")
+            hide("file2")
+            hide("header")
+            hide("sep")
+            hide("quote")
+        }else{
+            enable("file1")
+            enable("file2")
+            enable("header")
+            enable("sep")
+            enable("quote")
+            show("file1")
+            show("file2")
+            show("header")
+            show("sep")
+            show("quote")
+        }
     })
     # output trap locations
     output$traps <- renderTable({
@@ -191,59 +228,58 @@ shinyServer(function(input, output,session) {
                          numericInput("svshape.2","shape.2 start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
     }) # set starting value of shape.2 ensure it isn't already fixed
-
+    
     
     # Fit model based on inputs of user and output parameter estimates and plots
     
     
     fit <- eventReactive(input$fit,{
-        withProgress(message = 'Fitting model', value = 0,
-                     style = "old", detail = "Might take a while...",
-                     {
-                         detections <- detections()
-                         traps <- traps()
-                         if("bearing" %in% names(detections)){
-                             validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
-                                           "bd" %in% input$advancedOptions,
-                                           "Bearings should be in radians. To change see advanced options."))
-                         }
-                         if("bd" %in% input$advancedOptions){
-                             detections$bearing <- (2*pi/360)*detections$bearing
-                         }
-                         
-                         traps <- as.matrix(cbind(traps$x,traps$y))
-                         mask <- create.mask(traps,input$buffer,input$spacing)
-                         nms <- names(detections)
-                         
-                         capt.hist <- get.capt.hist(detections)
-                         ## fixed values
-                         param.fix <- input$parameter
-                         param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
-                                                 scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
-                         idx <- match(param.fix,names(param.fix.value))
-                         fix <- param.fix.value[idx]
-                         ## starting values
-                         param.sv <- input$parset
-                         param.sv.value <- list(g0 = input$svg0,sigma = input$svsigma,z = input$svz,svshape = input$svshape,
-                                                scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
-                         idsv <- match(param.sv,names(param.sv.value))
-                         sv <- param.sv.value[idsv]
-                         fit <- NULL
-                         fit <- tryCatch({
-                             fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
-                                      fix = fix, sv = sv) },
-                             warning = function(w) print("fit.ascr convergence issues"))
-                         
-                         
-                     })
+        detections <- detections()
+        traps <- traps()
+        if("bearing" %in% names(detections)){
+            validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
+                          "bd" %in% input$advancedOptions,
+                          "Bearings should be in radians. To change see advanced options."))
+        }
+        if("bd" %in% input$advancedOptions){
+            detections$bearing <- (2*pi/360)*detections$bearing
+        }
+        
+        traps <- as.matrix(cbind(traps$x,traps$y))
+        mask <- create.mask(traps,input$buffer,input$spacing)
+        nms <- names(detections)
+        
+        capt.hist <- get.capt.hist(detections)
+        ## fixed values
+        param.fix <- input$parameter
+        param.fix.value <- list(g0 = input$g0,sigma = input$sigma,z = input$z,shape = input$shape,
+                                scale = input$scale, shape.1 = input$shape.1,shape.2 = input$shape.2)
+        idx <- match(param.fix,names(param.fix.value))
+        fix <- param.fix.value[idx]
+        ## starting values
+        param.sv <- input$parset
+        param.sv.value <- list(g0 = input$svg0,sigma = input$svsigma,z = input$svz,svshape = input$svshape,
+                               scale = input$svscale, shape.1 = input$svshape.1,shape.2 = input$svshape.2)
+        idsv <- match(param.sv,names(param.sv.value))
+        sv <- param.sv.value[idsv]
+        fit <- NULL
+        disable("fit")
+        disable("side-panel")
+        show("processing") # stuff to disable fitting button
+        withConsoleRedirect("console", {
+            fit <-  tryCatch({
+            fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
+                     fix = fix, sv = sv,trace = TRUE) 
+            },warning = function(w) print("fit.ascr convergence issues"))
+            })
+        enable("fit")
+        enable("side-panel")
+        hide("processing")
+        return(fit)
     })
-    
-
     # coefficients
     output$coefs <- renderTable({
-        
         fit <- fit()
-        
         if(class(fit)[1]=="ascr"){
             res <- data.frame(Estimate = summary(fit)$coefs,Std.Error = summary(fit)$coefs.se)
             rownames(res) <- names(coef(fit))
@@ -252,9 +288,7 @@ shinyServer(function(input, output,session) {
     },rownames = TRUE)
     # AIC and log Likelihood
     output$AIClL <- renderTable({
-        
         fit <- fit()
-        
         if(class(fit)[1]=="ascr"){
             tab <- rbind(AIC = AIC(fit),logLik = fit$loglik)
             colnames(tab) <- "value"
@@ -267,7 +301,7 @@ shinyServer(function(input, output,session) {
         
         fit <- fit()
         
-        if(class(fit)[1]=="ascr"){
+        if(class(fit)[1] == "ascr"){
             par(mfrow = c(1,2))
             show.detsurf(fit)
             show.detsurf(fit,surface = FALSE)    
@@ -320,7 +354,18 @@ shinyServer(function(input, output,session) {
             text(1,1,paste("convergence issues try advanced options"),col = "grey")
         }
     },width = 700,height = 700)
-    
+    output$bearing_pdf <- renderPlot({
+        fit <- fit()
+        validate(need(!is.null(fit$args$capt$bearing),"No bearing data provided"))
+        validate(need(is.null(fit$args$capt$bearing),"TODO"))
+
+    })
+    output$distance_pdf <- renderPlot({
+        fit <- fit()
+        validate(need(!is.null(fit$args$capt$distance),"No distance data provided"))
+        validate(need(is.null(fit$args$capt$distance),"TODO"))
+
+    })
     ## code to produce downloadable objects (i.e., plots and report)
     output$downloadMask <- downloadHandler(
       filename = "ascrMask.png",
@@ -380,39 +425,45 @@ shinyServer(function(input, output,session) {
         }
     )
     output$report <- downloadHandler(
-        # For PDF output, change this to "report.pdf"
+          
         filename = "report.html",
         content = function(file) {
-            withProgress(message = 'Generating report', value = 0,style = "old",
-                         detail = "Creating report...",
-                         {
+            disable("report")
+            show("proc_report")
+            
             # Copy the report file to a temporary directory before processing it, in
             # case we don't have write permissions to the current working dir (which
                                         # can happen when deployed).
                              
-                             tempReport <- file.path(tempdir(), "report.Rmd")
-                             file.copy("report.Rmd", tempReport, overwrite = TRUE)
+            tempReport <- file.path(tempdir(), "report.Rmd")
+            file.copy("report.Rmd", tempReport, overwrite = TRUE)
                              
                                         # Set up parameters to pass to Rmd document
-                             params <- list(buffer = input$buffer,
-                                            spacing = input$spacing,
-                                            fit = fit(),
-                                            anispeed = input$anispeed)
+            params <- list(buffer = input$buffer,
+                           spacing = input$spacing,
+                           fit = fit(),
+                           anispeed = input$anispeed)
             # Knit the document, passing in the `params` list, and eval it in a
             # child of the global environment (this isolates the code in the document
             # from the code in this app).
-                             rmarkdown::render(tempReport, output_file = file,
-                                               params = params,
-                                               envir = new.env(parent = globalenv())
-                                               )
-                         })
-            
+            rmarkdown::render(tempReport, output_file = file,
+                              params = params,
+                              envir = new.env(parent = globalenv())
+                              )
+                         
+            enable("report")
+            hide("proc_report")
         })
     observeEvent(input$reset_input, {
         updateSliderInput(session, "spacing", max = 1000, value = 250)
         updateSliderInput(session, "buffer", max =10000, value = 1000)
         updateCheckboxInput(session, "example",  value = FALSE)
-        shinyjs::reset("side-panel")
+        reset("side-panel")
+    })
+    observe({
+        if (input$close > 0) {
+            stopApp()
+            }
     })
     session$onSessionEnded(stopApp)
 })
