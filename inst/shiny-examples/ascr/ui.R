@@ -5,8 +5,8 @@ library(shinythemes)
 
 
 shinyUI(fluidPage(
-    shinythemes::themeSelector(),
-    
+    #shinythemes::themeSelector(),
+    #theme = shinytheme("cerulean"),
                                         # App title ----
     titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
 
@@ -18,8 +18,17 @@ shinyUI(fluidPage(
             shinyjs::useShinyjs(),
             id = "side-panel",
             h3(icon("table"), tags$b("Read in data")),
-            checkboxInput("example", "Load single trap example data",value = FALSE), # example
-            
+            ## example data loading
+            checkboxInput("example", "Use example data",value = FALSE), # example
+            radioButtons("which_example", "Chose example data to load",
+                         choices = c( "Simple" = "simple",
+                                     "With bearings (rad)" = "bearings",
+                                     "With distance (m)" = "distance",
+                                     "With bearings (rad) and distance (m)" = "bd"),
+                         inline = TRUE),
+
+
+            ## user data loading
             fileInput("file1", "Choose CSV file of trap locations",
                       multiple = FALSE,
                       accept = c("text/csv",
@@ -104,7 +113,7 @@ shinyUI(fluidPage(
             
             actionButton("reset_input", "Reset sidebar",icon("refresh")),
             actionButton("close", "Shut down",icon("power-off")),
-            checkboxInput("advanced", "Show advanced options"),
+            checkboxInput("advanced", "Advanced options"),
             conditionalPanel(
                 condition = "input.advanced == true",
                 checkboxGroupInput("advancedOptions", "Advanced options",
@@ -188,7 +197,7 @@ shinyUI(fluidPage(
                                                        column(12, align="center",
                                                               withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
                                                               ),
-                                                       tags$head(tags$style(".locs{height:700px}"))
+                                                       tags$head(tags$style(".locs{height:720px}"))
                                                        ),
                                               fluidRow(
                                                   h4(icon("line-chart"),"Measurement error distributions"),

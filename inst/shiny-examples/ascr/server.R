@@ -35,18 +35,32 @@ shinyServer(function(input, output,session) {
         
      })
     detections <- reactive({
-        if(input$example == TRUE){
-            file <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
+        if("simple" %in% input$which_example & input$example == TRUE){
+            file <- system.file("inst/shiny-examples/ascr/data/exampledetect_simple.csv", package = "ascr")
             detections <- read.csv(file)
 
         }else{
-         req(input$file2)
-
-         detections <- read.csv(input$file2$datapath,
-                                header = input$header,
-                                sep = input$sep,
-                                quote = input$quote)
-         }
+            if("bearings" %in% input$which_example & input$example == TRUE){
+                file <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
+                detections <- read.csv(file)
+            }else{
+                if("distance" %in% input$which_example & input$example == TRUE){
+                file <- system.file("inst/shiny-examples/ascr/data/exampledetect_distance.csv", package = "ascr")
+                detections <- read.csv(file)
+                }else{
+                    if("bd" %in% input$which_example & input$example == TRUE){
+                        file <- system.file("inst/shiny-examples/ascr/data/exampledetect_bd.csv", package = "ascr")
+                        detections <- read.csv(file)
+                        }else{
+                         req(input$file2)
+                         detections <- read.csv(input$file2$datapath,
+                                                header = input$header,
+                                                sep = input$sep,
+                                                quote = input$quote)
+                        }
+                }
+            }
+        }
     })
     observe({
         if(input$example == TRUE){
@@ -60,6 +74,8 @@ shinyServer(function(input, output,session) {
             hide("header")
             hide("sep")
             hide("quote")
+            enable("which_example")
+            show("which_example")
         }else{
             enable("file1")
             enable("file2")
@@ -71,8 +87,11 @@ shinyServer(function(input, output,session) {
             show("header")
             show("sep")
             show("quote")
+            disable("which_example")
+            hide("which_example")
         }
     })
+    
     # output trap locations
     output$traps <- renderTable({
         
@@ -362,8 +381,8 @@ shinyServer(function(input, output,session) {
     })
     output$distance_pdf <- renderPlot({
         fit <- fit()
-        validate(need(!is.null(fit$args$capt$distance),"No distance data provided"))
-        validate(need(is.null(fit$args$capt$distance),"TODO"))
+        validate(need(!is.null(fit$args$capt$dist),"No distance data provided"))
+        validate(need(is.null(fit$args$capt$dist),"TODO"))
 
     })
     ## code to produce downloadable objects (i.e., plots and report)
