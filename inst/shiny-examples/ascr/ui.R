@@ -99,6 +99,9 @@ shinyUI(fluidPage(
             numericInput("call.num", "Choose call number to display in estimated location plot:",
                          min = 1, max = 1000,step = 1,
                          value = 1),
+            numericInput("distD", "Choose distance at which to plot distance error distribution (m):",
+                         min = 1, max = 10000,step = 1,
+                         value = 1),
             
             downloadButton('downloadSurfPlot', 'Detection surface'),
             downloadButton('downloadContPlot', 'Detection contour'),

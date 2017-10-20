@@ -505,20 +505,24 @@ plot.mask <- function(mask = NULL,traps = NULL){
 #'
 #' @export
 plot.dvm <- function(fit = NULL){
-    val <- dvm(theta = fit$args$capt$bearing,mu = 0, kappa = fit$coefficients["kappa"])
-    ## TODO
+    theta = sort(fit$args$capt$bearing - pi)
+    val <- dvm(theta = theta,mu = 0, kappa = fit$coefficients["kappa"])
+    plot(theta,val, type="l",xlim = c(-pi/2,pi/2),ylim = range(0,max(val)), main = "", axes = FALSE, xlab = "bearings (rad)", ylab = "")
+    axis(1, at = c(-pi/2,0,pi/2), labels = c(expression(-pi/2),0,expression(pi/2)))
+    axis(2)
 }
 
 #' Function to plotGamma distridution of distance measurtment error
 #' from model.
 #' @param fit ascr model
-#' @param dist distance of call/animal
+#' @param d distance of call/animal at which to plot
 #' @export
-plot.distgam <- function(fit = NULL,dist = NULL){
-    if(is.null(dist)) dist <- c(fit$args$capt$dist)[1]
-    val <- dgamma(x = fit$args$capt$dist, shape = fit$coefficients["alpha"],
-                  scale = dist/fit$coefficients["alpha"])
-    ## TODO
-    
+plot.distgam <- function(fit = NULL,d = NULL){
+    x <- sort(fit$args$capt$dist)
+    val <- dgamma(x = x, shape = fit$coefficients["alpha"],
+                  scale = d/fit$coefficients["alpha"])
+    plot(x,val, type="l",ylim = range(val), main = "", axes = FALSE, xlab = "distance (m)", ylab = "")
+    axis(1)
+    axis(2)    
 }
     

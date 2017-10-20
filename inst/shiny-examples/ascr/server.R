@@ -408,7 +408,10 @@ shinyServer(function(input, output,session) {
     output$distance_pdf <- renderPlot({
         fit <- fit()
         validate(need(!is.null(fit$args$capt$dist),"No distance data provided"))
-        plot.distgam(fit)
+        validate(need(!(input$distD == 0), "Distance cannot be zero"))
+        validate(need(!is.null(input$distD), "Please provide distance for measurement error distribution"))
+        validate(need(input$distD < max(fit$args$capt$dist),"Distance cannot be greater than those observed"))
+        plot.distgam(fit, d = input$distD)
     })
     ## code to produce downloadable objects (i.e., plots and report)
     output$downloadMask <- downloadHandler(
