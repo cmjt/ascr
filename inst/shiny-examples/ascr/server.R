@@ -158,7 +158,7 @@ shinyServer(function(input, output,session) {
     })
     # change buffer sliding in advanced increase buffer option chosen
     observe({
-        if("increase mask buffer" %in% input$advancedOptions) {
+        if("inc" %in% input$advancedOptions) {
         maxdistance <- input$incmaskbuffer
         updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2)
         }
@@ -317,9 +317,7 @@ shinyServer(function(input, output,session) {
     # Detection function plots and location estimate plots
     
     output$detectionsurf <- renderPlot({
-        
         fit <- fit()
-        
         if(class(fit)[1] == "ascr"){
             par(mfrow = c(1,2))
             show.detsurf(fit)
@@ -330,9 +328,7 @@ shinyServer(function(input, output,session) {
         }
     })
     output$detfn <- renderPlot({
-        
         fit <- fit()
-        
             if(class(fit)[1]=="ascr"){
                 show.detfn(fit)
             }else{
@@ -340,50 +336,79 @@ shinyServer(function(input, output,session) {
                 text(1,1,paste("convergence issues try advanced options"),col = "grey")
             }
     })
+    observe({
+        if("loclims" %in% input$advancedOptions){
+            fit <- fit()
+            minX <- min(fit$args$mask[,1])
+            minY <- min(fit$args$mask[,2])
+            maxX <- max(fit$args$mask[,1])
+            maxY <- max(fit$args$mask[,2])
+            rangeX <- range(fit$args$mask[,1])
+            rangeY <- range(fit$args$mask[,2])
+            updateSliderInput(session, "xlim", max = maxX, min = minX, value = rangeX)
+            updateSliderInput(session, "ylim", max = maxY, min = minY, value = rangeY)
+            }
+    })         
+                    
     output$locs <- renderPlot({
-       
         fit <- fit()
-        
         if(class(fit)[1]=="ascr"){
             validate(need(input$call.num,"Please provide a call number"))
-            if(input$call.num > nrow(fit$args$capt$bincapt)){
-                plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-                text(1,1,paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " "),col = "grey")
+            ## validate(need(input$call.num > nrow(fit$args$capt$bincapt,
+            ##                                     paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " ")))
+         
+            if("fine" %in% input$advancedOptions & !("loclims" %in% input$advancedOptions)){
+                traps <- traps()
+                validate(need(input$plotmaskspacing,
+                              "Please provide a spacing for the (plotting) mask or uncheck this option"))
+                validate(need(input$plotmaskspacing > 0,
+                              "Cannnot have a spacing of zero meters"))
+                validate(need(input$buffer > input$plotmaskspacing,
+                              "The mask buffer cannot be less than the (plotting) mask spacing"))
+                validate(need(input$plotmaskspacing < input$spacing,
+                              "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
+                msk <- create.mask(traps,input$plotmaskbuffer,input$plotmaskspacing)
+                locations(fit,input$call.num,mask = msk)
+                legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
             }else{
-                if("build finer mask for plotting" %in% input$advancedOptions){
-                    traps <- traps()
-                    validate(need(input$plotmaskspacing,
-                                  "Please provide a spacing for the (plotting) mask or uncheck this option"))
-                    validate(need(input$plotmaskspacing > 0,
-                                  "Cannnot have a spacing of zero meters"))
-                    validate(need(input$buffer > input$plotmaskspacing,
-                                  "The mask buffer cannot be less than the (plotting) mask spacing"))
-                    validate(need(input$plotmaskspacing < input$spacing,
-                                  "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
-                    msk <- create.mask(traps,input$buffer,input$plotmaskspacing)
-                    locations(fit,input$call.num,mask = msk)
+                if("loclims" %in% input$advancedOptions & !("fine" %in% input$advancedOptions)){
+                    locations(fit,input$call.num,xlim = input$xlim, ylim = input$ylim)
                     legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
                 }else{
-                    locations(fit,input$call.num)
-                    legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                    if("loclims" %in% input$advancedOptions & "fine" %in% input$advancedOptions){
+                        traps <- traps()
+                        validate(need(input$plotmaskspacing,
+                                      "Please provide a spacing for the (plotting) mask or uncheck this option"))
+                        validate(need(input$plotmaskspacing > 0,
+                                      "Cannnot have a spacing of zero meters"))
+                        validate(need(input$buffer > input$plotmaskspacing,
+                                      "The mask buffer cannot be less than the (plotting) mask spacing"))
+                        validate(need(input$plotmaskspacing < input$spacing,
+                                      "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
+                        msk <- create.mask(traps,input$buffer,input$plotmaskspacing)
+                        locations(fit,input$call.num,mask = msk,xlim = input$xlim, ylim = input$ylim)
+                        legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                    }else{
+                        locations(fit,input$call.num)
+                        legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
+                    }
                 }
             }
-        }else{
+        }else{     
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
-            text(1,1,paste("convergence issues try advanced options"),col = "grey")
+            text(1,1,paste("Convergence issues try advanced options"),col = "grey")
         }
     },width = 700,height = 700)
     output$bearing_pdf <- renderPlot({
         fit <- fit()
         validate(need(!is.null(fit$args$capt$bearing),"No bearing data provided"))
-        validate(need(is.null(fit$args$capt$bearing),"TODO"))
+        plot.dvm(fit)
 
     })
     output$distance_pdf <- renderPlot({
         fit <- fit()
         validate(need(!is.null(fit$args$capt$dist),"No distance data provided"))
-        validate(need(is.null(fit$args$capt$dist),"TODO"))
-
+        plot.distgam(fit)
     })
     ## code to produce downloadable objects (i.e., plots and report)
     output$downloadMask <- downloadHandler(

@@ -5,8 +5,7 @@ library(shinythemes)
 
 
 shinyUI(fluidPage(
-    #shinythemes::themeSelector(),
-    #theme = shinytheme("cerulean"),
+    theme = shinytheme("spacelab"),
                                         # App title ----
     titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
 
@@ -100,12 +99,13 @@ shinyUI(fluidPage(
             numericInput("call.num", "Choose call number to display in estimated location plot:",
                          min = 1, max = 1000,step = 1,
                          value = 1),
-            downloadButton('downloadSurfPlot', 'Detection surface plot'),
-            downloadButton('downloadContPlot', 'Detection contour plot'),
-            downloadButton('downloadDetPlot', 'Detection function plot'),
+            
+            downloadButton('downloadSurfPlot', 'Detection surface'),
+            downloadButton('downloadContPlot', 'Detection contour'),
+            downloadButton('downloadDetPlot', 'Detection function'),
                                         # Other stuff
             h3(icon("ellipsis-h"),tags$b("Other")),
-            numericInput("anispeed","Chose speed of animation for report",
+            numericInput("anispeed","Animation frame rate for report (s)",
                          min = 0.1,max = 5,step = 0.1,
                          value = 1),
             downloadButton("report", "Generate basic report"),
@@ -113,15 +113,16 @@ shinyUI(fluidPage(
             
             actionButton("reset_input", "Reset sidebar",icon("refresh")),
             actionButton("close", "Shut down",icon("power-off")),
-            checkboxInput("advanced", "Advanced options"),
+            checkboxInput("advanced","Advanced options"),
             conditionalPanel(
                 condition = "input.advanced == true",
                 checkboxGroupInput("advancedOptions", "Advanced options",
                                    choices = list("bearings in degrees (default radians)" = "bd","increase mask buffer"  = "inc",
-                                                  "chose parameter starting values" = "sv",
-                                                  "build finer mask for plotting" = "fine"),inline = TRUE),
+                                                  "choose parameter starting values" = "sv",
+                                                  "build finer mask for plotting" = "fine",
+                                                  "choose limits of locations plot" = "loclims"),inline = TRUE),
                 conditionalPanel(
-                    condition = "input.advancedOptions.includes('chose parameter starting values')",
+                    condition = "input.advancedOptions.includes('sv')",
                     uiOutput("startParamSelection"),
                     uiOutput("svg0"), # chose g0 sv
                     uiOutput("svsigma"), # chose sigma sv
@@ -132,17 +133,26 @@ shinyUI(fluidPage(
                     uiOutput("svshape.2") # chose shape.2 sv
                 ),
                 conditionalPanel(
-                    condition = "input.advancedOptions.includes('increase mask buffer')",
+                    condition = "input.advancedOptions.includes('inc')",
                     numericInput("incmaskbuffer","Chose higher bound for the mask buffer",
                                  min = 1, max = 10000000,step = 1,
                                  value = 1000)
                 ),
                 conditionalPanel(
-                    condition = "input.advancedOptions.includes('build finer mask for plotting')",
+                    condition = "input.advancedOptions.includes('fine')",
                     numericInput("plotmaskspacing","Chose mask spacing (plotting purposes only)",
                                  min = 1, max = 10000000,step = 1,
                                  value = 250)
                 ),
+                conditionalPanel(
+                    condition = "input.advancedOptions.includes('loclims')",
+                    sliderInput("xlim", "xlim:",
+                                min = 1, max = 10000,
+                                value = c(250,500)),
+                    sliderInput("ylim", "ylim:",
+                                min = 1, max = 10000,
+                                value = c(250,500))
+                    ),
                 downloadButton('downloadModel', 'Save model .RData file')
             )
         ),
@@ -197,7 +207,7 @@ shinyUI(fluidPage(
                                                        column(12, align="center",
                                                               withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
                                                               ),
-                                                       tags$head(tags$style(".locs{height:720px}"))
+                                                       tags$head(tags$style(".locs{height:750px}"))
                                                        ),
                                               fluidRow(
                                                   h4(icon("line-chart"),"Measurement error distributions"),

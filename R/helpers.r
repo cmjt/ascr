@@ -498,3 +498,27 @@ plot.mask <- function(mask = NULL,traps = NULL){
          xlab = "Longitude",ylab = "Latitude")
     points(traps,cex = 2,pch = 4,lwd = 3)
 }
+
+#' Function to plot Von Mises distribution of bearing measurement error
+#' from model.
+#' @param fit ascr model
+#'
+#' @export
+plot.dvm <- function(fit = NULL){
+    val <- dvm(theta = fit$args$capt$bearing,mu = 0, kappa = fit$coefficients["kappa"])
+    ## TODO
+}
+
+#' Function to plotGamma distridution of distance measurtment error
+#' from model.
+#' @param fit ascr model
+#' @param dist distance of call/animal
+#' @export
+plot.distgam <- function(fit = NULL,dist = NULL){
+    if(is.null(dist)) dist <- c(fit$args$capt$dist)[1]
+    val <- dgamma(x = fit$args$capt$dist, shape = fit$coefficients["alpha"],
+                  scale = dist/fit$coefficients["alpha"])
+    ## TODO
+    
+}
+    
