@@ -6,7 +6,15 @@ params:
   spacing: NA
   fit: NA
   anispeed: = NA
+  dist: NA
 ---
+```{r setup, eval = TRUE, echo = FALSE}
+bear <- FALSE
+distance <- FALSE
+if(!is.null(params$fit$args$capt$bearing)){bear <- TRUE}
+if(!is.null(params$fit$args$capt$dist)){distance <- TRUE}
+```
+
 
 The data included a total of `r nrow(params$fit$args$capt$bincapt)` calls and `r ncol(params$fit$args$capt$bincapt)` traps.
 
@@ -19,7 +27,7 @@ plot.mask(params$fit$args$mask,params$fit$args$traps)
 
 Parameter estimates and standard errors from the analysis. 
 ```{r}
-summary(params$fit)
+params$fit
 ```
 
 The detection surface is estimated as
@@ -34,6 +42,21 @@ The detection function is estimated as
 show.detfn(params$fit)
 ```
 
+```{r bearing,eval = bear,results='asis',message = FALSE, echo = FALSE}
+cat("The bearing distribution is estimated as")
+```
+
+```{r plot bear,eval = bear,echo = FALSE}
+plot.dvm(params$fit)
+```
+
+```{r distance,eval = distance,results = 'asis',message = FALSE,echo = FALSE}
+cat(paste("The distance distribution evaluated at",params$dist, "m is estimated as"))
+```
+
+```{r plot dist,eval = distance,echo = FALSE}
+plot.distgam(params$fit)
+```
 The estimated locations of each call is shown in this animation
 
 ```{r animation, eval=TRUE,echo=FALSE,fig.show='animate',message=FALSE,fig.height=7,fig.width=7}

@@ -582,7 +582,8 @@ shinyServer(function(input, output,session) {
             params <- list(buffer = input$buffer,
                            spacing = input$spacing,
                            fit = fit(),
-                           anispeed = input$anispeed)
+                           anispeed = input$anispeed,
+                           dist = input$distD)
             ## Knit the document, passing in the `params` list, and eval it in a
             ## child of the global environment (this isolates the code in the document
             ## from the code in this app).
