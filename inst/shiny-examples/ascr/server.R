@@ -3,11 +3,11 @@ library(shiny)
 library(ascr)
 
 withConsoleRedirect <- function(containerId, expr) {
-  # Change type="output" to type="message" to catch stderr
-  # (messages, warnings, and errors) instead of stdout.
+  ## Change type="output" to type="message" to catch stderr
+  ## (messages, warnings, and errors) instead of stdout.
   txt <- capture.output(results <- expr, type = "message")
   if (length(txt) > 0) {
-    insertUI(paste0("#", containerId), where = "beforeEnd",
+    insertUI(paste0("##", containerId), where = "beforeEnd",
              ui = paste0(txt, "\n", collapse = "")
     )
   }
@@ -15,8 +15,6 @@ withConsoleRedirect <- function(containerId, expr) {
 }
 
 shinyServer(function(input, output,session) {
-    
-    
     ## read in input data
      traps <- reactive({
         if(input$example == TRUE){
@@ -25,7 +23,6 @@ shinyServer(function(input, output,session) {
             
         }else{
            req(input$file1)
-            
            traps <- read.csv(input$file1$datapath,
                              header = input$header,
                              sep = input$sep,
@@ -62,6 +59,7 @@ shinyServer(function(input, output,session) {
             }
         }
     })
+    ## Clunky way of enabling/disabling buttons 
     observe({
         if(input$example == TRUE){
             disable("file1")
@@ -90,9 +88,30 @@ shinyServer(function(input, output,session) {
             disable("which_example")
             hide("which_example")
         }
+        
+        if(input$example == FALSE | isTruthy(input$file1) == FALSE){
+            disable("downloadMask")
+            disable("buffer")
+            disable("spacing")
+        }
+        if(isTruthy(input$file1) == TRUE | input$example == TRUE){
+            enable("downloadMask")
+            enable("buffer")
+            enable("spacing")
+        }
+        if(input$example == FALSE | isTruthy(input$file1) == FALSE & isTruthy(input$file2) == FALSE){
+            disable("select")
+            disable("fixedParamSelection")
+            disable("fit")
+        }
+        if(input$example == TRUE | isTruthy(input$file1) == TRUE & isTruthy(input$file2) == TRUE){
+            enable("select")
+            enable("fixedParamSelection")
+            enable("fit")
+            }
     })
     
-    # output trap locations
+    ## output trap locations
     output$traps <- renderTable({
         
         
@@ -105,10 +124,8 @@ shinyServer(function(input, output,session) {
 
     },
     striped = TRUE)
-                                        # code to plot trap locations
+                                        ## code to plot trap locations
     output$trapsPlot <- renderPlot({
-        
-        
         traps <- traps()
         if(!is.null(traps$post)){
             plot(traps$x,traps$y,asp = 1,type = "n",xlab = "Longitude",ylab = "Latitude")
@@ -132,8 +149,6 @@ shinyServer(function(input, output,session) {
     striped = TRUE)
 
     output$capt.hist <- renderTable({
-        
-        
         detections <- detections()
         capt.hist <- get.capt.hist(detections)
         colnames(capt.hist[[1]]) <- names(table(detections$post))
@@ -144,10 +159,10 @@ shinyServer(function(input, output,session) {
             return(capt.hist[[1]])
         }
     },striped = TRUE,rownames = TRUE,colnames = TRUE,digits = 0)
-    # chage buffer slider based on trap range
-    # chage spacing slider based on trap range
+    ## chage buffer slider based on trap range
+    ## chage spacing slider based on trap range
     observe({
-        infile <- traps() # user input file upload
+        infile <- traps() ## user input file upload
         if(!is.null(infile)) {
             traps <- traps()
             maxdistance <- diff(range(traps$x,traps$y))/4
@@ -156,14 +171,14 @@ shinyServer(function(input, output,session) {
             updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2) 
         }
     })
-    # change buffer sliding in advanced increase buffer option chosen
+    ## change buffer sliding in advanced increase buffer option chosen
     observe({
         if("inc" %in% input$advancedOptions) {
         maxdistance <- input$incmaskbuffer
         updateSliderInput(session, "buffer", max = maxdistance,value = maxdistance/2)
         }
     })
-    # plot of mask 
+    ## plot of mask 
     output$maskPlot <- renderPlot({
         
         traps <- traps()
@@ -175,7 +190,7 @@ shinyServer(function(input, output,session) {
         plot.mask(mask,traps)
         
     },width = 500, height = 500)
-    # chose which parameters of which detection function to fit, conditional numeric input for fixing param values
+    ## chose which parameters of which detection function to fit, conditional numeric input for fixing param values
     output$fixedParamSelection <- renderUI({
         params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale"),
                             c("hn","hn","hr","hr","hr","th","th"))
@@ -215,41 +230,41 @@ shinyServer(function(input, output,session) {
         conditionalPanel(condition = "input.parset.includes('g0') && !input.parameter.includes('g0')",
                          numericInput("svg0","g0 start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of g0 ensure it isn't already fixed
+    }) ## set starting value of g0 ensure it isn't already fixed
      output$svsigma <- renderUI({
         conditionalPanel(condition = "input.parset.includes('sigma') && !input.parameter.includes('sigma')",
                          numericInput("svsigma","sigma start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of sigma ensure it isn't already fixed
+    }) ## set starting value of sigma ensure it isn't already fixed
     output$svz <- renderUI({
         conditionalPanel(condition = "input.parset.includes('z') && !input.parameter.includes('z')",
                          numericInput("svz","z start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of z ensure it isn't already fixed
+    }) ## set starting value of z ensure it isn't already fixed
     output$svshape <- renderUI({
         conditionalPanel(condition = "input.parset.includes('shape') && !input.parameter.includes('shape')",
                          numericInput("svshape","shape start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of shape ensure it isn't already fixed
+    }) ## set starting value of shape ensure it isn't already fixed
     output$svscale <- renderUI({
         conditionalPanel(condition = "input.parset.includes('scale') && !input.parameter.includes('scale')",
                          numericInput("svscale","scale start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of scale ensure it isn't already fixed
+    }) ## set starting value of scale ensure it isn't already fixed
 
     output$svshape.1 <- renderUI({
         conditionalPanel(condition = "input.parset.includes('shape.1') && !input.parameter.includes('shape.1')",
                          numericInput("svshape.1","shape.1 start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of shape.1 ensure it isn't already fixed
+    }) ## set starting value of shape.1 ensure it isn't already fixed
     output$svshape.2 <- renderUI({
         conditionalPanel(condition = "input.parset.includes('shape.2') && !input.parameter.includes('shape.2')",
                          numericInput("svshape.2","shape.2 start value:",value = 1,min = 1,max = 100,step = 1)
                          )              
-    }) # set starting value of shape.2 ensure it isn't already fixed
+    }) ## set starting value of shape.2 ensure it isn't already fixed
     
     
-    # Fit model based on inputs of user and output parameter estimates and plots
+    ## Fit model based on inputs of user and output parameter estimates and plots
     
     
     fit <- eventReactive(input$fit,{
@@ -284,7 +299,7 @@ shinyServer(function(input, output,session) {
         fit <- NULL
         disable("fit")
         disable("side-panel")
-        show("processing") # stuff to disable fitting button
+        show("processing") ## stuff to disable fitting button
         withConsoleRedirect("console", {
             fit <-  tryCatch({
                 fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
@@ -296,7 +311,7 @@ shinyServer(function(input, output,session) {
         hide("processing")
         return(fit)
     })
-    # coefficients
+    ## coefficients
     output$coefs <- renderTable({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
@@ -305,7 +320,7 @@ shinyServer(function(input, output,session) {
             return(res)
         }
     },rownames = TRUE)
-    # AIC and log Likelihood
+    ## AIC and log Likelihood
     output$AIClL <- renderTable({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
@@ -314,7 +329,7 @@ shinyServer(function(input, output,session) {
             return(tab)
         }
     },rownames = TRUE)
-    # Detection function plots and location estimate plots
+    ## Detection function plots and location estimate plots
     
     output$detectionsurf <- renderPlot({
         fit <- fit()
@@ -336,28 +351,32 @@ shinyServer(function(input, output,session) {
                 text(1,1,paste("convergence issues try advanced options"),col = "grey")
             }
     })
-    observe({
-        if("loclims" %in% input$advancedOptions){
-            fit <- fit()
-            minX <- min(fit$args$mask[,1])
-            minY <- min(fit$args$mask[,2])
-            maxX <- max(fit$args$mask[,1])
-            maxY <- max(fit$args$mask[,2])
-            rangeX <- range(fit$args$mask[,1])
-            rangeY <- range(fit$args$mask[,2])
-            updateSliderInput(session, "xlim", max = maxX, min = minX, value = rangeX)
-            updateSliderInput(session, "ylim", max = maxY, min = minY, value = rangeY)
-            }
-    })         
+    ## When a double-click happens, check if there's a brush on the plot.
+    ## If so, zoom to the brush bounds; if not, reset the zoom.
+    ranges <- reactiveValues(x = NULL, y = NULL)
+    observeEvent(input$locsplot_dblclick, {
+        brush <- input$locsplot_brush
+        if (!is.null(brush)) {
+            ranges$x <- c(brush$xmin, brush$xmax)
+            ranges$y <- c(brush$ymin, brush$ymax)
+            
+        } else {
+            ranges$x <- NULL
+            ranges$y <- NULL
+        }
+    })
+    
+    observeEvent(input$reset_locplot,{
+        ranges$x <- NULL
+        ranges$y <- NULL
+    })
                     
     output$locs <- renderPlot({
         fit <- fit()
         if(class(fit)[1]=="ascr"){
             validate(need(input$call.num,"Please provide a call number"))
-            ## validate(need(input$call.num > nrow(fit$args$capt$bincapt,
-            ##                                     paste("There are only",nrow(fit$args$capt$bincapt),"calls",collapse = " ")))
-         
-            if("fine" %in% input$advancedOptions & !("loclims" %in% input$advancedOptions)){
+            validate(need(input$call.num <= nrow(fit$args$capt$bincapt),"Please provide a valid call number"))
+            if("fine" %in% input$advancedOptions & is.null(ranges$x)){
                 traps <- traps()
                 validate(need(input$plotmaskspacing,
                               "Please provide a spacing for the (plotting) mask or uncheck this option"))
@@ -367,15 +386,15 @@ shinyServer(function(input, output,session) {
                               "The mask buffer cannot be less than the (plotting) mask spacing"))
                 validate(need(input$plotmaskspacing < input$spacing,
                               "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
-                msk <- create.mask(traps,input$plotmaskbuffer,input$plotmaskspacing)
+                msk <- create.mask(traps,input$buffer,input$plotmaskspacing)
                 locations(fit,input$call.num,mask = msk)
                 legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
             }else{
-                if("loclims" %in% input$advancedOptions & !("fine" %in% input$advancedOptions)){
-                    locations(fit,input$call.num,xlim = input$xlim, ylim = input$ylim)
+                if(!is.null(ranges$x) & !("fine" %in% input$advancedOptions)){
+                    locations(fit,input$call.num,xlim = ranges$x, ylim = ranges$y)
                     legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
                 }else{
-                    if("loclims" %in% input$advancedOptions & "fine" %in% input$advancedOptions){
+                    if("fine" %in% input$advancedOptions & !is.null(ranges$x)){
                         traps <- traps()
                         validate(need(input$plotmaskspacing,
                                       "Please provide a spacing for the (plotting) mask or uncheck this option"))
@@ -386,7 +405,7 @@ shinyServer(function(input, output,session) {
                         validate(need(input$plotmaskspacing < input$spacing,
                                       "To obtain a smooth plot the (plotting) mask spacing should be finer than the model fit mask "))
                         msk <- create.mask(traps,input$buffer,input$plotmaskspacing)
-                        locations(fit,input$call.num,mask = msk,xlim = input$xlim, ylim = input$ylim)
+                        locations(fit,input$call.num,mask = msk,xlim = ranges$x, ylim = ranges$y)
                         legend("top",legend = paste("call",input$call.num,sep = " "),bty = "n")
                     }else{
                         locations(fit,input$call.num)
@@ -394,11 +413,15 @@ shinyServer(function(input, output,session) {
                     }
                 }
             }
-        }else{     
+        }else{
             plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
             text(1,1,paste("Convergence issues try advanced options"),col = "grey")
         }
     },width = 700,height = 700)
+   
+        
+    
+    ## Measurement error plots
     output$bearing_pdf <- renderPlot({
         fit <- fit()
         validate(need(!is.null(fit$args$capt$bearing),"No bearing data provided"))
@@ -414,6 +437,36 @@ shinyServer(function(input, output,session) {
         plot.distgam(fit, d = input$distD)
     })
     ## code to produce downloadable objects (i.e., plots and report)
+    ## initislly disable some options if model doesn't exist
+    observeEvent(!input$fit,{
+        disable("downloadSurfPlot")
+        disable("downloadContPlot")
+        disable("downloadDetPlot")
+        disable("call.num")
+        disable("reset_locplot")
+        disable("distD")
+        disable("downloadbearingPlot")
+        disable("downloaddistancePlot")
+        disable("anispeed")
+        disable("report")
+    })
+     observeEvent(input$fit,{
+        enable("downloadSurfPlot")
+        enable("downloadContPlot")
+        enable("downloadDetPlot")
+        enable("call.num")
+        enable("reset_locplot")
+        enable("distD")
+        enable("downloadbearingPlot")
+        enable("downloaddistancePlot")
+        enable("anispeed")
+        enable("report")
+    })
+
+
+
+
+        
     output$downloadMask <- downloadHandler(
       filename = "ascrMask.png",
       content = function(file) {
@@ -453,7 +506,6 @@ shinyServer(function(input, output,session) {
     output$downloadDetPlot <- downloadHandler(
         filename = "ascr_detection_function_plot.png",
         content = function(file) {
-            
             png(file)
             fit <- fit()
             if(class(fit)[1]=="ascr"){
@@ -463,6 +515,47 @@ shinyServer(function(input, output,session) {
             }
             dev.off()
         })
+    ## deal with bearing and distance plots
+    observe({
+        fit <- fit()
+        if(is.null(fit$args$capt$dist)){
+            disable("downloaddistancePlot")
+            disable("distD")
+        }else{
+            enable("downloaddistancePlot")
+            enable("distD")
+        }
+        if(is.null(fit$args$capt$bearing)){
+            disable("downloadbearingPlot")
+        }else{
+            enable("downloadbearingPlot")
+            }
+        })
+    output$downloadbearingPlot <- downloadHandler(
+        filename = "ascr_bearing_distribution_plot.png",
+        content = function(file) {
+            png(file)
+            fit <- fit()
+            if(class(fit)[1]=="ascr"){  
+                plot.dvm(fit)
+            }else{
+                NULL
+            }
+            dev.off()
+        })
+    output$downloaddistancePlot <- downloadHandler(
+        filename = "ascr_distance_distribution_plot.png",
+        content = function(file) {
+            png(file)
+            fit <- fit()
+            if(class(fit)[1]=="ascr"){  
+               plot.distgam(fit, d = input$distD)
+            }else{
+                NULL
+            }
+            dev.off()
+        })
+    
     output$downloadModel <- downloadHandler(
         filename = paste("ascr_",date(),".RData",sep = ""),
         content = function(file){
@@ -478,21 +571,21 @@ shinyServer(function(input, output,session) {
             disable("report")
             show("proc_report")
             
-            # Copy the report file to a temporary directory before processing it, in
-            # case we don't have write permissions to the current working dir (which
-                                        # can happen when deployed).
+            ## Copy the report file to a temporary directory before processing it, in
+            ## case we don't have write permissions to the current working dir (which
+                                        ## can happen when deployed).
                              
             tempReport <- file.path(tempdir(), "report.Rmd")
             file.copy("report.Rmd", tempReport, overwrite = TRUE)
                              
-                                        # Set up parameters to pass to Rmd document
+                                        ## Set up parameters to pass to Rmd document
             params <- list(buffer = input$buffer,
                            spacing = input$spacing,
                            fit = fit(),
                            anispeed = input$anispeed)
-            # Knit the document, passing in the `params` list, and eval it in a
-            # child of the global environment (this isolates the code in the document
-            # from the code in this app).
+            ## Knit the document, passing in the `params` list, and eval it in a
+            ## child of the global environment (this isolates the code in the document
+            ## from the code in this app).
             rmarkdown::render(tempReport, output_file = file,
                               params = params,
                               envir = new.env(parent = globalenv())

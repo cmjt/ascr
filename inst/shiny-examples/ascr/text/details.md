@@ -17,9 +17,9 @@ trap. The **detections** file must contain columns named **occasion**,
 group was heard by which trap (corresponding to the traps in the **trap
 location** file). The **detections** file may also contain a column
 headed **bearing** or **distance** or both. These must refer to the
-estimated bearing of the call (in radians) and the estimated distance to
-the call (in meters). If this is the case then additional parameters are
-estimated related to these distributions.
+estimated bearing of the call (radians ∈(0, 2*π*)) and the estimated
+distance to the call (meters). If this is the case then additional
+parameters are estimated related to these distributions.
 
 Select the **Data** tab to visualize your data (both trap locations and
 detections).

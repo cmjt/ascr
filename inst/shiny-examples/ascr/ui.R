@@ -6,19 +6,19 @@ library(shinythemes)
 
 shinyUI(fluidPage(
     theme = shinytheme("spacelab"),
-                                        # App title ----
+                                        ## App title ----
     titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
 
-                                        # Sidebar layout with input and output definitions ----
+                                        ## Sidebar layout with input and output definitions ----
     sidebarLayout(
 
-                                        # Sidebar panel for inputs ----
+                                        ## Sidebar panel for inputs ----
         sidebarPanel(
             shinyjs::useShinyjs(),
             id = "side-panel",
             h3(icon("table"), tags$b("Read in data")),
             ## example data loading
-            checkboxInput("example", "Use example data",value = FALSE), # example
+            checkboxInput("example", "Use example data",value = FALSE), ## example
             radioButtons("which_example", "Chose example data to load",
                          choices = c( "Simple" = "simple",
                                      "With bearings (rad)" = "bearings",
@@ -32,13 +32,13 @@ shinyUI(fluidPage(
                       multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
-                                 ".csv")),  # Input: Select a csv file of trap locations
+                                 ".csv")),  ## Input: Select a csv file of trap locations
             
             fileInput("file2", "Choose CSV file of detections",
                       multiple = FALSE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
-                                 ".csv")),  # Input: Select a csv file of detection locations
+                                 ".csv")),  ## Input: Select a csv file of detection locations
             checkboxInput("header", "Header", TRUE),
             radioButtons("sep", "Separator",
                          choices = c(Comma = ",",
@@ -58,55 +58,57 @@ shinyUI(fluidPage(
             
             
             h3(icon("puzzle-piece"),tags$b("Build mask")),
-            # Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
+            ## Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
             sliderInput("buffer", "Choose mask buffer (m):",
                         min = 1, max = 10000,
                         value = 1000),
-            # Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
+            ## Input: integer of mask spacing in meters (this is updated based on trap info when file is loaded)
             sliderInput("spacing", "Choose mask spacing (m):",
                         min = 1, max = 1000,
                         value = 250),
             downloadButton('downloadMask', 'Mask plot'),
-                                        # horizontal lines before model options,
+                                        ## horizontal lines before model options,
             
             h3(icon("cogs"),tags$b("Modelling")),
-                                        # select box for detetion functions
+                                        ## select box for detetion functions
             selectInput("select", label = "Chose a detection function", 
                         choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th'), 
                         selected = "hn"),
-                                        # check box conditional on value of detfn chosen
+                                        ## check box conditional on value of detfn chosen
             uiOutput("fixedParamSelection"),
-                                        # fix g0 to what value
+                                        ## fix g0 to what value
             uiOutput("fixedg0"),
-                                        # fix sigma to what value
+                                        ## fix sigma to what value
             uiOutput("fixedsigma"),
-                                        # fix z to what value
+                                        ## fix z to what value
             uiOutput("fixedz"),
-                                        # fix shape to what value
+                                        ## fix shape to what value
             uiOutput("fixedshape"),
-                                        # fix scale to what value
+                                        ## fix scale to what value
             uiOutput("fixedscale"),
-                                        # fix shape.1 to what value
+                                        ## fix shape.1 to what value
             uiOutput("fixedshape.1"),
-                                        # fix shape.2 to what value
+                                        ## fix shape.2 to what value
             uiOutput("fixedshape.2"),
-                                        # horizontal lines before choosing call number for estimated group location
+                                        ## horizontal lines before choosing call number for estimated group location
             
             
             actionButton("fit", "Fit model",icon("cogs")),
             hidden(p(id = "processing", "Processing...")),
             hr(),
-            numericInput("call.num", "Choose call number to display in estimated location plot:",
-                         min = 1, max = 1000,step = 1,
-                         value = 1),
-            numericInput("distD", "Choose distance at which to plot distance error distribution (m):",
-                         min = 1, max = 10000,step = 1,
-                         value = 1),
-            
             downloadButton('downloadSurfPlot', 'Detection surface'),
             downloadButton('downloadContPlot', 'Detection contour'),
             downloadButton('downloadDetPlot', 'Detection function'),
-                                        # Other stuff
+            numericInput("call.num", "Choose call number to display in estimated location plot:",
+                         min = 1, max = 1000,step = 1,
+                         value = 1),
+            actionButton("reset_locplot", "Reset location plot",icon("refresh")),
+            numericInput("distD", "Choose distance at which to plot distance error distribution (m):",
+                         min = 1, max = 10000,step = 1,
+                         value = 1),
+            downloadButton('downloadbearingPlot', 'Bearing distribution (rad)'),
+            downloadButton('downloaddistancePlot', 'Distance distribution (m)'),
+            ## Other stuff
             h3(icon("ellipsis-h"),tags$b("Other")),
             numericInput("anispeed","Animation frame rate for report (s)",
                          min = 0.1,max = 5,step = 0.1,
@@ -122,18 +124,17 @@ shinyUI(fluidPage(
                 checkboxGroupInput("advancedOptions", "Advanced options",
                                    choices = list("bearings in degrees (default radians)" = "bd","increase mask buffer"  = "inc",
                                                   "choose parameter starting values" = "sv",
-                                                  "build finer mask for plotting" = "fine",
-                                                  "choose limits of locations plot" = "loclims"),inline = TRUE),
+                                                  "build finer mask for plotting" = "fine"),inline = TRUE),
                 conditionalPanel(
                     condition = "input.advancedOptions.includes('sv')",
                     uiOutput("startParamSelection"),
-                    uiOutput("svg0"), # chose g0 sv
-                    uiOutput("svsigma"), # chose sigma sv
-                    uiOutput("svz"), # chose z sv
-                    uiOutput("svshape"), # chose shape sv
-                    uiOutput("svscale"), # chose scale sv
-                    uiOutput("svshape.1"), # chose shape.1 sv
-                    uiOutput("svshape.2") # chose shape.2 sv
+                    uiOutput("svg0"), ## chose g0 sv
+                    uiOutput("svsigma"), ## chose sigma sv
+                    uiOutput("svz"), ## chose z sv
+                    uiOutput("svshape"), ## chose shape sv
+                    uiOutput("svscale"), ## chose scale sv
+                    uiOutput("svshape.1"), ## chose shape.1 sv
+                    uiOutput("svshape.2") ## chose shape.2 sv
                 ),
                 conditionalPanel(
                     condition = "input.advancedOptions.includes('inc')",
@@ -147,19 +148,10 @@ shinyUI(fluidPage(
                                  min = 1, max = 10000000,step = 1,
                                  value = 250)
                 ),
-                conditionalPanel(
-                    condition = "input.advancedOptions.includes('loclims')",
-                    sliderInput("xlim", "xlim:",
-                                min = 1, max = 10000,
-                                value = c(250,500)),
-                    sliderInput("ylim", "ylim:",
-                                min = 1, max = 10000,
-                                value = c(250,500))
-                    ),
                 downloadButton('downloadModel', 'Save model .RData file')
             )
         ),
-                                        # Main panel for displaying outputs ----
+                                        ## Main panel for displaying outputs ----
         mainPanel(
             tabsetPanel(type = "tabs",
                         tabPanel(h4(icon("pencil"), tags$b("Details")),
@@ -206,12 +198,18 @@ shinyUI(fluidPage(
                                                   withSpinner(plotOutput("detectionsurf"),type = 5,color = "#D3D3D3")
                                               ),
                                               fluidRow(class = "locs",
-                                                       h4(icon("map-signs"),"Location estimates"),
-                                                       column(12, align="center",
-                                                              withSpinner(plotOutput("locs"),type = 5,color = "#D3D3D3")
-                                                              ),
-                                                       tags$head(tags$style(".locs{height:750px}"))
-                                                       ),
+                                                       h4(icon("map-signs"),
+                                                          "Location estimates (interactive plot---drag and double-click to zoom)"),
+                                                       column(12,
+                                                              withSpinner(plotOutput("locs", height = "700px",
+                                                                                     width = "700px",
+                                                                                     dblclick = "locsplot_dblclick",
+                                                                                     brush = brushOpts(
+                                                                                         id = "locsplot_brush",
+                                                                                         resetOnNew = TRUE)),
+                                                                          type = 5,color = "#D3D3D3"),
+                                                              tags$head(tags$style(".locs{height:750px}"))
+                                                       )),
                                               fluidRow(
                                                   h4(icon("line-chart"),"Measurement error distributions"),
                                                   column(6, align="center",
