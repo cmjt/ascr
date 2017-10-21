@@ -18,8 +18,8 @@ shinyServer(function(input, output,session) {
     ## read in input data
      traps <- reactive({
         if(input$example == TRUE){
-            file <- system.file("inst/shiny-examples/ascr/data/exampletraps.csv", package = "ascr")
-            traps <- read.csv(file)
+            
+            traps <- shiny_example_traps
             
         }else{
            req(input$file1)
@@ -33,21 +33,21 @@ shinyServer(function(input, output,session) {
      })
     detections <- reactive({
         if("simple" %in% input$which_example & input$example == TRUE){
-            file <- system.file("inst/shiny-examples/ascr/data/exampledetect_simple.csv", package = "ascr")
-            detections <- read.csv(file)
+            
+            detections <- shiny_example_detections[,1:3]
 
         }else{
             if("bearings" %in% input$which_example & input$example == TRUE){
-                file <- system.file("inst/shiny-examples/ascr/data/exampledetect.csv", package = "ascr")
-                detections <- read.csv(file)
+               
+                detections <- shiny_example_detections[,1:4]
             }else{
                 if("distance" %in% input$which_example & input$example == TRUE){
-                file <- system.file("inst/shiny-examples/ascr/data/exampledetect_distance.csv", package = "ascr")
-                detections <- read.csv(file)
+                
+                detections <- shiny_example_detections[,-4]
                 }else{
                     if("bd" %in% input$which_example & input$example == TRUE){
-                        file <- system.file("inst/shiny-examples/ascr/data/exampledetect_bd.csv", package = "ascr")
-                        detections <- read.csv(file)
+                        
+                        detections <- shiny_example_detections
                         }else{
                          req(input$file2)
                          detections <- read.csv(input$file2$datapath,
