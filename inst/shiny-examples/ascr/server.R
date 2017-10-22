@@ -71,18 +71,18 @@ shinyServer(function(input, output,session) {
             hide("sep")
             hide("quote")
             enable("which_example")
-            show("which_example")
+            shinyjs::show("which_example")
         }else{
             enable("file1")
             enable("file2")
             enable("header")
             enable("sep")
             enable("quote")
-            show("file1")
-            show("file2")
-            show("header")
-            show("sep")
-            show("quote")
+            shinyjs::show("file1")
+            shinyjs::show("file2")
+            shinyjs::show("header")
+            shinyjs::show("sep")
+            shinyjs::show("quote")
             disable("which_example")
             hide("which_example")
         }
@@ -297,7 +297,7 @@ shinyServer(function(input, output,session) {
         fit <- NULL
         disable("fit")
         disable("side-panel")
-        show("processing") ## stuff to disable fitting button
+        shinyjs::show("processing") ## stuff to disable fitting button
         withConsoleRedirect("console", {
             fit <-  tryCatch({
                 fit.ascr(capt = capt.hist,traps = traps,mask = mask,detfn =  input$select,
@@ -567,7 +567,7 @@ shinyServer(function(input, output,session) {
         filename = "report.html",
         content = function(file) {
             disable("report")
-            show("proc_report")
+            shinyjs::show("proc_report")
             
             ## Copy the report file to a temporary directory before processing it, in
             ## case we don't have write permissions to the current working dir (which

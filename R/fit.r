@@ -1391,7 +1391,6 @@ par.admbsecr <- par.fit.ascr
 #' @importFrom shinythemes shinytheme
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom animation ani.options ani.pause
-#' @importFrom shiny runApp stopApp
 #' @useDynLib ascr
 NULL
 
