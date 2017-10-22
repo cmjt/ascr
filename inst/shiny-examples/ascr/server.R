@@ -1,6 +1,4 @@
 
-library(shiny)
-library(ascr)
 
 withConsoleRedirect <- function(containerId, expr) {
   ## Change type="output" to type="message" to catch stderr
@@ -587,10 +585,10 @@ shinyServer(function(input, output,session) {
             ## Knit the document, passing in the `params` list, and eval it in a
             ## child of the global environment (this isolates the code in the document
             ## from the code in this app).
-            rmarkdown::render(tempReport, output_file = file,
-                              params = params,
-                              envir = new.env(parent = globalenv())
-                              )
+            render(tempReport, output_file = file,
+                   params = params,
+                   envir = new.env(parent = globalenv())
+                   )
                          
             enable("report")
             hide("proc_report")

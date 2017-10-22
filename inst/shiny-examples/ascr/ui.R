@@ -1,8 +1,3 @@
-library(shinycssloaders)
-library(shinyjs)
-library(shinythemes)
-
-
 
 shinyUI(fluidPage(
     theme = shinytheme("spacelab"),

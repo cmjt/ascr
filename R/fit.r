@@ -1386,6 +1386,12 @@ par.admbsecr <- par.fit.ascr
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom secr make.capthist make.mask read.mask read.traps sim.popn
 #' @importFrom utils example setTxtProgressBar txtProgressBar
+#' @importFrom shinyjs disable hide enable show reset
+#' @importFrom rmarkdown render
+#' @importFrom shinythemes shinytheme
+#' @importFrom shinycssloaders withSpinner
+#' @importFrom animation ani.options ani.pause
+#' @importFrom shiny runApp stopApp
 #' @useDynLib ascr
 NULL
 
