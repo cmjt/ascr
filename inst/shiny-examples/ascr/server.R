@@ -187,7 +187,7 @@ shinyServer(function(input, output,session) {
         validate(need(input$buffer > input$spacing,"The mask buffer cannot be less than the spacing"))
         validate(need(input$buffer/input$spacing < 80, "Infeasibly fine mask"))
         mask <- create.mask(traps,input$buffer,input$spacing)
-        plot.mask(mask,traps)
+        show.mask(mask,traps)
         
     },width = 500, height = 500)
     ## chose which parameters of which detection function to fit, conditional numeric input for fixing param values
@@ -425,7 +425,7 @@ shinyServer(function(input, output,session) {
     output$bearing_pdf <- renderPlot({
         fit <- fit()
         validate(need(!is.null(fit$args$capt$bearing),"No bearing data provided"))
-        plot.dvm(fit)
+        show.dvm(fit)
 
     })
     output$distance_pdf <- renderPlot({
@@ -434,7 +434,7 @@ shinyServer(function(input, output,session) {
         validate(need(!(input$distD == 0), "Distance cannot be zero"))
         validate(need(!is.null(input$distD), "Please provide distance for measurement error distribution"))
         validate(need(input$distD < max(fit$args$capt$dist),"Distance cannot be greater than those observed"))
-        plot.distgam(fit, d = input$distD)
+        show.distgam(fit, d = input$distD)
     })
     ## code to produce downloadable objects (i.e., plots and report)
     ## initislly disable some options if model doesn't exist
@@ -475,7 +475,7 @@ shinyServer(function(input, output,session) {
           traps <- traps()
           traps <- as.matrix(cbind(traps$x,traps$y))
           mask <- create.mask(traps,input$buffer,input$spacing)
-          plot.mask(mask,traps)
+          show.mask(mask,traps)
           dev.off()
       })
     output$downloadSurfPlot <- downloadHandler(
@@ -537,7 +537,7 @@ shinyServer(function(input, output,session) {
             png(file)
             fit <- fit()
             if(class(fit)[1]=="ascr"){  
-                plot.dvm(fit)
+                show.dvm(fit)
             }else{
                 NULL
             }
@@ -549,7 +549,7 @@ shinyServer(function(input, output,session) {
             png(file)
             fit <- fit()
             if(class(fit)[1]=="ascr"){  
-               plot.distgam(fit, d = input$distD)
+               show.distgam(fit, d = input$distD)
             }else{
                 NULL
             }

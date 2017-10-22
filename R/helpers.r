@@ -491,9 +491,10 @@ get.capt.hist <- function(data){
 #' Function to plot mask along with trap locations in a 'tidy' presentable manner
 #' @param mask mask object from \code{create.mask}
 #' @param traps a matrix of trap locations used to create the \link{mask}
+#' 
 #' @export
 
-plot.mask <- function(mask = NULL,traps = NULL){
+show.mask <- function(mask = NULL,traps = NULL){
     plot(mask,asp = 1,pch = 20,col = "grey",
          xlab = "Longitude",ylab = "Latitude")
     points(traps,cex = 2,pch = 4,lwd = 3)
@@ -504,7 +505,7 @@ plot.mask <- function(mask = NULL,traps = NULL){
 #' @param fit ascr model
 #'
 #' @export
-plot.dvm <- function(fit = NULL){
+show.dvm <- function(fit = NULL){
     theta = sort(fit$args$capt$bearing - pi)
     val <- dvm(theta = theta,mu = 0, kappa = fit$coefficients["kappa"])
     plot(theta,val, type="l",xlim = c(-pi/2,pi/2),ylim = range(0,max(val)), main = "", axes = FALSE, xlab = "bearings (rad)", ylab = "")
@@ -517,7 +518,7 @@ plot.dvm <- function(fit = NULL){
 #' @param fit ascr model
 #' @param d distance of call/animal at which to plot
 #' @export
-plot.distgam <- function(fit = NULL,d = NULL){
+show.distgam <- function(fit = NULL,d = NULL){
     x <- sort(fit$args$capt$dist)
     val <- dgamma(x = x, shape = fit$coefficients["alpha"],
                   scale = d/fit$coefficients["alpha"])
