@@ -9,7 +9,7 @@ shinyUI(fluidPage(
 
                                         ## Sidebar panel for inputs ----
         sidebarPanel(
-            shinyjs::useShinyjs(),
+            useShinyjs(),
             id = "side-panel",
             h3(icon("table"), tags$b("Read in data")),
             ## example data loading

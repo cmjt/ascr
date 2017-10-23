@@ -1386,11 +1386,12 @@ par.admbsecr <- par.fit.ascr
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom secr make.capthist make.mask read.mask read.traps sim.popn
 #' @importFrom utils example setTxtProgressBar txtProgressBar
-#' @importFrom shinyjs disable hide enable show reset
+#' @importFrom shinyjs disable hide enable show reset useShinyjs
 #' @importFrom rmarkdown render
 #' @importFrom shinythemes shinytheme
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom animation ani.options ani.pause
+#' @importFrom shiny shinyServer reactive req observe renderTable renderPlot updateSliderInput valiate renderUI conditionalPanel eventiveReactive observeEvent downloadHandler stopApp shinyUI fluidPage titlePanel sidebarLayout checkboxInput radioButtons fileInput sliderInput downloadButton selectInput uiOutputactionButton numericInput checkboxGroupInput mainPanel tabPanel tabsetPanel fluidRow
 #' @useDynLib ascr
 NULL
 
