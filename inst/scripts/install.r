@@ -1,5 +1,6 @@
 pkgs <- c("CircStats", "fastGHQuad", "knitr", "matrixStats", "mvtnorm", "optimx", "plyr",
-          "Rcpp", "R2admb", "secr", "testthat", "truncnorm", "xtable", "downloader")
+          "Rcpp", "R2admb", "secr", "testthat", "truncnorm", "xtable", "downloader","shiny",
+          "shinycssloaders","shinyjs","shinythemes","animation","rmarkdown")
 options(warn = -1)
 for (i in pkgs){
     if (!require(i, quietly = TRUE, character.only = TRUE)){
