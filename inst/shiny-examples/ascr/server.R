@@ -86,6 +86,32 @@ shinyServer(function(input, output,session) {
             disable("which_example")
             hide("which_example")
         }
+        ## code to produce downloadable objects (i.e., plots and report)
+        ## initislly disable some options if no model fitted
+        observeEvent(!input$fit,{
+            disable("downloadSurfPlot")
+            disable("downloadContPlot")
+            disable("downloadDetPlot")
+            disable("call.num")
+            disable("reset_locplot")
+            disable("distD")
+            disable("downloadbearingPlot")
+            disable("downloaddistancePlot")
+            disable("anispeed")
+            disable("report")
+        })
+        observeEvent(input$fit,{
+            enable("downloadSurfPlot")
+            enable("downloadContPlot")
+            enable("downloadDetPlot")
+            enable("call.num")
+            enable("reset_locplot")
+            enable("distD")
+            enable("downloadbearingPlot")
+            enable("downloaddistancePlot")
+            enable("anispeed")
+            enable("report")
+        })
         
         if(input$example == FALSE | isTruthy(input$file1) == FALSE){
             disable("downloadMask")
@@ -295,6 +321,15 @@ shinyServer(function(input, output,session) {
         idsv <- match(param.sv,names(param.sv.value))
         sv <- param.sv.value[idsv]
         fit <- NULL
+        disable("downloadSurfPlot")
+        disable("downloadContPlot")
+        disable("downloadDetPlot")
+        disable("downloadbearingPlot")
+        disable("downloaddistancePlot")
+        disable("downloadMask")
+        disable("downloadModel")
+        disable("anispeed")
+        disable("report")
         disable("fit")
         disable("side-panel")
         shinyjs::show("processing") ## stuff to disable fitting button
@@ -306,6 +341,15 @@ shinyServer(function(input, output,session) {
         })
         enable("fit")
         enable("side-panel")
+        enable("downloadSurfPlot")
+        enable("downloadContPlot")
+        enable("downloadDetPlot")
+        enable("downloadbearingPlot")
+        enable("downloaddistancePlot")
+        enable("anispeed")
+        enable("report")
+        enable("downloadMask")
+        enable("downloadModel")
         hide("processing")
         return(fit)
     })
@@ -434,36 +478,6 @@ shinyServer(function(input, output,session) {
         validate(need(input$distD < max(fit$args$capt$dist),"Distance cannot be greater than those observed"))
         show.distgam(fit, d = input$distD)
     })
-    ## code to produce downloadable objects (i.e., plots and report)
-    ## initislly disable some options if model doesn't exist
-    observeEvent(!input$fit,{
-        disable("downloadSurfPlot")
-        disable("downloadContPlot")
-        disable("downloadDetPlot")
-        disable("call.num")
-        disable("reset_locplot")
-        disable("distD")
-        disable("downloadbearingPlot")
-        disable("downloaddistancePlot")
-        disable("anispeed")
-        disable("report")
-    })
-     observeEvent(input$fit,{
-        enable("downloadSurfPlot")
-        enable("downloadContPlot")
-        enable("downloadDetPlot")
-        enable("call.num")
-        enable("reset_locplot")
-        enable("distD")
-        enable("downloadbearingPlot")
-        enable("downloaddistancePlot")
-        enable("anispeed")
-        enable("report")
-    })
-
-
-
-
         
     output$downloadMask <- downloadHandler(
       filename = "ascrMask.png",
@@ -566,6 +580,15 @@ shinyServer(function(input, output,session) {
           
         filename = "report.html",
         content = function(file) {
+            disable("downloadSurfPlot")
+            disable("downloadContPlot")
+            disable("downloadDetPlot")
+            disable("downloadMask")
+            disable("downloadModel")
+            disable("side-panel")
+            disable("downloadbearingPlot")
+            disable("downloaddistancePlot")
+            disable("anispeed")
             disable("report")
             shinyjs::show("proc_report")
             
@@ -589,7 +612,15 @@ shinyServer(function(input, output,session) {
                    params = params,
                    envir = new.env(parent = globalenv())
                    )
-                         
+            enable("downloadSurfPlot")
+            enable("downloadContPlot")
+            enable("downloadDetPlot")
+            enable("side-panel")
+            enable("downloadbearingPlot")
+            enable("downloaddistancePlot")
+            enable("anispeed")
+            enable("downloadMask")
+            enable("downloadModel")
             enable("report")
             hide("proc_report")
         })
