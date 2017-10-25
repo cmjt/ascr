@@ -26,6 +26,9 @@ shinyServer(function(input, output,session) {
                              sep = input$sep,
                              quote = input$quote)
            
+           validate(need("x" %in% names(traps) & "y" %in% names(traps) & "post" %in% names(traps),
+                         "Trap file must contain columns named x, y, and post"))
+           return(traps)
         }
         
      })
@@ -52,6 +55,11 @@ shinyServer(function(input, output,session) {
                                                 header = input$header,
                                                 sep = input$sep,
                                                 quote = input$quote)
+                         
+                         validate(need("occasion" %in% names(detections) & "group" %in% names(detections) &
+                                       "post" %in% names(detections),
+                                       "Detections file must contain columns named occasion, group, and post"))
+                         return(detections)
                         }
                 }
             }
@@ -137,8 +145,6 @@ shinyServer(function(input, output,session) {
     
     ## output trap locations
     output$traps <- renderTable({
-        
-        
         traps <- traps()
         if(input$disp == "head") {
             return(head(traps))
