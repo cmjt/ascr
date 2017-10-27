@@ -28,6 +28,8 @@ shinyServer(function(input, output,session) {
            
            validate(need("x" %in% names(traps) & "y" %in% names(traps) & "post" %in% names(traps),
                          "Trap file must contain columns named x, y, and post"))
+           validate(need(!("array" %in% names(traps) & length(table(t$array)) > 1),
+                         "It seems you have multiple arrays, this software currently doesn't support this"))
            return(traps)
         }
         
@@ -59,6 +61,17 @@ shinyServer(function(input, output,session) {
                          validate(need("occasion" %in% names(detections) & "group" %in% names(detections) &
                                        "post" %in% names(detections),
                                        "Detections file must contain columns named occasion, group, and post"))
+                         ## checking the same group was not heard on by same trap more than once on the same occasion
+                         can1 <- 1/2 * (as.numeric(detections$post) +
+                                              detections$group)* (as.numeric(detections$post) +
+                                                                  detections$group + 1) + detections$group
+                         validate(need(
+                             length(
+                                 table(1/2 *(can1 + detections$occasion) *(can1 + detections$occasion + 1) +
+                                       detections$occasion)) == nrow(detections),
+                                       "Detections were made more than once by some traps on the same occasion. CHECK DATA"))
+                         ## validate(need(!("array" %in% names(detections) & length(table(t$array)) > 1),
+                         ## "It seems you have multiple arrays, this software currently doesn't support this"))
                          return(detections)
                         }
                 }
