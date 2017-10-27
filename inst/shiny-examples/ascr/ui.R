@@ -179,8 +179,13 @@ shinyUI(fluidPage(
                                      tabPanel(h5(icon("area-chart"), tags$b("Output")),
                                               fluidRow(
                                                   column(width = 3,
-                                                         h4(icon("pencil-square"),"Parameter estimates"),
-                                                         withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
+                                                         fluidRow(
+                                                             h4(icon("pencil-square"),"Parameter estimates"),
+                                                             withSpinner(tableOutput("coefs"),type = 5,color = "#D3D3D3")),
+                                                         fluidRow(
+                                                             h4(icon("volume-control-phone"),"Density")),
+                                                             withSpinner(tableOutput("denst"),type = 5,color = "#D3D3D3")
+                                                         ),
                                                   column(width = 3,
                                                          h4(icon("info-circle"),"Model info"),
                                                          withSpinner(tableOutput("AIClL"),type = 5,color = "#D3D3D3")),

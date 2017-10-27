@@ -368,6 +368,16 @@ shinyServer(function(input, output,session) {
             return(res)
         }
     },rownames = TRUE)
+    ## density
+     output$denst <- renderTable({
+        fit <- fit()
+        if(class(fit)[1]=="ascr"){
+            res <- rbind( fit$coefficients["D"], fit$coefficients["D"]/0.01)
+            rownames(res) <- c("per hectare",   "per squared km")
+            colnames(res) <- "Call density"
+            return(res)
+        }
+    },rownames = TRUE,colnames = TRUE)
     ## AIC and log Likelihood
     output$AIClL <- renderTable({
         fit <- fit()
