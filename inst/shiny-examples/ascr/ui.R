@@ -1,13 +1,13 @@
 
 shinyUI(fluidPage(
     theme = shinytheme("spacelab"),
-                                        ## App title ----
+    ## App title ----
     titlePanel("acoustic spatial capture-recapture (ascr)", windowTitle = "ascr"),
 
-                                        ## Sidebar layout with input and output definitions ----
+    ## Sidebar layout with input and output definitions ----
     sidebarLayout(
 
-                                        ## Sidebar panel for inputs ----
+        ## Sidebar panel for inputs ----
         sidebarPanel(
             useShinyjs(),
             id = "side-panel",
@@ -51,7 +51,10 @@ shinyUI(fluidPage(
                                      Head = "head"),
                          selected = "all",inline = TRUE),
             
-            
+            radioButtons("bearing_range", "Chose bearing measurements",
+                         choices = c("Degrees" = "bd",
+                                     "Radians" = "rad"),
+                         selected = "rad",inline = TRUE),
             h3(icon("puzzle-piece"),tags$b("Build mask")),
             ## Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
             sliderInput("buffer", "Choose mask buffer (m):",
@@ -62,30 +65,30 @@ shinyUI(fluidPage(
                         min = 1, max = 1000,
                         value = 250),
             downloadButton('downloadMask', 'Mask plot'),
-                                        ## horizontal lines before model options,
+            ## horizontal lines before model options,
             
             h3(icon("cogs"),tags$b("Modelling")),
-                                        ## select box for detetion functions
+            ## select box for detetion functions
             selectInput("select", label = "Chose a detection function", 
                         choices = list("halfnormal" = 'hn', "hazard rate" = 'hr', "threshold" = 'th'), 
                         selected = "hn"),
-                                        ## check box conditional on value of detfn chosen
+            ## check box conditional on value of detfn chosen
             uiOutput("fixedParamSelection"),
-                                        ## fix g0 to what value
+            ## fix g0 to what value
             uiOutput("fixedg0"),
-                                        ## fix sigma to what value
+            ## fix sigma to what value
             uiOutput("fixedsigma"),
-                                        ## fix z to what value
+            ## fix z to what value
             uiOutput("fixedz"),
-                                        ## fix shape to what value
+            ## fix shape to what value
             uiOutput("fixedshape"),
-                                        ## fix scale to what value
+            ## fix scale to what value
             uiOutput("fixedscale"),
-                                        ## fix shape.1 to what value
+            ## fix shape.1 to what value
             uiOutput("fixedshape.1"),
-                                        ## fix shape.2 to what value
+            ## fix shape.2 to what value
             uiOutput("fixedshape.2"),
-                                        ## horizontal lines before choosing call number for estimated group location
+            ## horizontal lines before choosing call number for estimated group location
             
             
             actionButton("fit", "Fit model",icon("cogs")),
@@ -117,7 +120,7 @@ shinyUI(fluidPage(
             conditionalPanel(
                 condition = "input.advanced == true",
                 checkboxGroupInput("advancedOptions", "Advanced options",
-                                   choices = list("bearings in degrees (default radians)" = "bd","increase mask buffer"  = "inc",
+                                   choices = list("increase mask buffer"  = "inc",
                                                   "choose parameter starting values" = "sv",
                                                   "build finer mask for plotting" = "fine"),inline = TRUE),
                 conditionalPanel(
@@ -146,7 +149,7 @@ shinyUI(fluidPage(
                 downloadButton('downloadModel', 'Save model .RData file')
             )
         ),
-                                        ## Main panel for displaying outputs ----
+        ## Main panel for displaying outputs ----
         mainPanel(
             tabsetPanel(type = "tabs",
                         tabPanel(h4(icon("pencil"), tags$b("Details")),

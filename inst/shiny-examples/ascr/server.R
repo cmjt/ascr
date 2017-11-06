@@ -20,65 +20,91 @@ shinyServer(function(input, output,session) {
             traps <- shiny_example_traps
             
         }else{
-           req(input$file1)
-           traps <- read.csv(input$file1$datapath,
-                             header = input$header,
-                             sep = input$sep,
-                             quote = input$quote)
-           
-           validate(need("x" %in% names(traps) & "y" %in% names(traps) & "post" %in% names(traps),
-                         "Trap file must contain columns named x, y, and post"))
-           validate(need(!("array" %in% names(traps) & length(table(t$array)) > 1),
-                         "It seems you have multiple arrays, this software currently doesn't support this"))
-           return(traps)
-        }
-        
+            req(input$file1)
+            traps <- read.csv(input$file1$datapath,
+                              header = input$header,
+                              sep = input$sep,
+                              quote = input$quote)
+            
+            validate(need("x" %in% names(traps) & "y" %in% names(traps) & "post" %in% names(traps),
+                          "Trap file must contain columns named x, y, and post"))
+            validate(need(!("array" %in% names(traps) & length(table(traps$array)) > 1),
+                          "It seems you have multiple arrays, this software currently doesn't support this"))
+            validate(need(class(traps$post)=="integer", "Please give post ID as a whole number"))
+            validate(need(class(traps$x)%in%c("integer","numeric"), "Please ensure x coordinate is numeric"))
+            validate(need(class(traps$y)%in%c("integer","numeric"), "Please ensure y coordinate is numeric"))
+            return(traps)
+        } 
      })
     detections <- reactive({
         if("simple" %in% input$which_example & input$example == TRUE){
             
             detections <- shiny_example_detections[,1:3]
-
+            disable("bearing_range")
+            hide("bearing_range")
+            return(detections)
         }else{
             if("bearings" %in% input$which_example & input$example == TRUE){
-               
+                
                 detections <- shiny_example_detections[,1:4]
+                enable("bearing_range")
+                shinyjs::show("bearing_range")
+                return(detections)
             }else{
                 if("distance" %in% input$which_example & input$example == TRUE){
-                
-                detections <- shiny_example_detections[,-4]
+                    
+                    detections <- shiny_example_detections[,-4]
+                    disable("bearing_range")
+                    hide("bearing_range")
+                    return(detections)
                 }else{
                     if("bd" %in% input$which_example & input$example == TRUE){
                         
                         detections <- shiny_example_detections
+                        enable("bearing_range")
+                        shinyjs::show("bearing_range")
+                        return(detections)
+                    }else{
+                        req(input$file2)
+                        detections <- read.csv(input$file2$datapath,
+                                               header = input$header,
+                                               sep = input$sep,
+                                               quote = input$quote)
+                        
+                        validate(need("occasion" %in% names(detections) & "group" %in% names(detections) &
+                                      "post" %in% names(detections),
+                                      "Detections file must contain columns named occasion, group, and post"))
+                        ## checking the same group was not heard on by same trap more than once on the same occasion
+                        can1 <- 1/2 * (as.numeric(detections$post) +
+                                       detections$group)* (as.numeric(detections$post) +
+                                                           detections$group + 1) + detections$group
+                        validate(need(
+                            length(
+                                table(1/2 *(can1 + detections$occasion) *(can1 + detections$occasion + 1) +
+                                      detections$occasion)) == nrow(detections),
+                            "Detections were made more than once by some traps on the same occasion. CHECK DATA"))
+                        validate(need(class(detections$group) == "integer", "Please give group ID as a whole number"))
+                        validate(need(class(detections$occasion) == "integer", "Please give occasion ID as a whole number"))
+                        validate(need(class(detections$post) == "integer", "Please give post ID as a whole number"))
+                        if("bearing" %in% names(detections)){
+                            validate(need(class(detections$bearing) == "numeric", "Please make sure all bearings are numeric"))
+                            enable("bearing_range")
+                            shinyjs::show("bearing_range")
                         }else{
-                         req(input$file2)
-                         detections <- read.csv(input$file2$datapath,
-                                                header = input$header,
-                                                sep = input$sep,
-                                                quote = input$quote)
-                         
-                         validate(need("occasion" %in% names(detections) & "group" %in% names(detections) &
-                                       "post" %in% names(detections),
-                                       "Detections file must contain columns named occasion, group, and post"))
-                         ## checking the same group was not heard on by same trap more than once on the same occasion
-                         can1 <- 1/2 * (as.numeric(detections$post) +
-                                              detections$group)* (as.numeric(detections$post) +
-                                                                  detections$group + 1) + detections$group
-                         validate(need(
-                             length(
-                                 table(1/2 *(can1 + detections$occasion) *(can1 + detections$occasion + 1) +
-                                       detections$occasion)) == nrow(detections),
-                                       "Detections were made more than once by some traps on the same occasion. CHECK DATA"))
-                         ## validate(need(!("array" %in% names(detections) & length(table(t$array)) > 1),
-                         ## "It seems you have multiple arrays, this software currently doesn't support this"))
-                         return(detections)
+                            disable("bearing_range")
+                            hide("bearing_range")
                         }
+                        if("distance" %in% names(detections)){
+                            validate(need(class(detections$distance) == "numeric", "Please make sure all distances are numeric"))
+                            
+                        }
+                        return(detections)
+                    }
                 }
             }
         }
     })
-    ## Clunky way of enabling/disabling buttons 
+    ## Clunky way of enabling/disabling buttons
     observe({
         if(input$example == TRUE){
             disable("file1")
@@ -142,17 +168,19 @@ shinyServer(function(input, output,session) {
         if(isTruthy(input$file1) == TRUE | input$example == TRUE){
             enable("downloadMask")
             enable("buffer")
-            enable("spacing")
+            enable("spacing") 
         }
         if(input$example == FALSE | isTruthy(input$file1) == FALSE & isTruthy(input$file2) == FALSE){
             disable("select")
             disable("fixedParamSelection")
             disable("fit")
+            hide("bearing_range")
         }
         if(input$example == TRUE | isTruthy(input$file1) == TRUE & isTruthy(input$file2) == TRUE){
             enable("select")
             enable("fixedParamSelection")
             enable("fit")
+            shinyjs::show("bearing_range")
             }
     })
     
@@ -167,7 +195,7 @@ shinyServer(function(input, output,session) {
 
     },
     striped = TRUE)
-                                        ## code to plot trap locations
+    ## code to plot trap locations
     output$trapsPlot <- renderPlot({
         traps <- traps()
         if(!is.null(traps$post)){
@@ -315,11 +343,12 @@ shinyServer(function(input, output,session) {
         traps <- traps()
         if("bearing" %in% names(detections)){
             validate(need(detections$bearing >= 0 & detections$bearing <= 2*pi |
-                          "bd" %in% input$advancedOptions,
-                          "Bearings should be in radians. To change see advanced options."))
-        }
-        if("bd" %in% input$advancedOptions){
-            detections$bearing <- (2*pi/360)*detections$bearing
+                          "bd" %in% input$bearing_range,
+                          "Your bearing measurements are outside the range of radians, please indicate correct measurement in the sidebar."))
+            
+            if("bd" %in% input$bearing_range){
+                detections$bearing <- (2*pi/360)*detections$bearing
+            }
         }
         
         traps <- as.matrix(cbind(traps$x,traps$y))
@@ -623,12 +652,12 @@ shinyServer(function(input, output,session) {
             
             ## Copy the report file to a temporary directory before processing it, in
             ## case we don't have write permissions to the current working dir (which
-                                        ## can happen when deployed).
+            ## can happen when deployed).
                              
             tempReport <- file.path(tempdir(), "report.Rmd")
             file.copy("report.Rmd", tempReport, overwrite = TRUE)
                              
-                                        ## Set up parameters to pass to Rmd document
+            ## Set up parameters to pass to Rmd document
             params <- list(buffer = input$buffer,
                            spacing = input$spacing,
                            fit = fit(),
