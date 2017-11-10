@@ -527,3 +527,73 @@ show.distgam <- function(fit = NULL,d = NULL){
     axis(2)    
 }
     
+#' Function to show capture history data, can also be used alongside model fit information
+#' to show estimated locations
+#' @param traps a matrix of trap locations
+#' @param capt.hist a list of capture history information, an object returned by \link{get.capt.hist}
+#' @param xlim x-axis limits of plot, by default this is based on trap locations
+#' @param ylim y-axis limits of plot, by default this is based on trap locations
+#' @param id call number to display, by default this is 1
+#' @param show.axes logical, whhether to include plot axes
+#' @examples
+#' \dontrun{
+#' detections <- shiny_example_detections
+#' traps <- shiny_example_traps
+#' detections <- shiny_example_detections
+#' show.data(traps, capt.hist)}
+#' @export
+show.data <- function(traps, capt.hist, xlim = NULL,ylim = NULL, id = 1,show.axes = FALSE){
+    if(is.null(xlim)){
+        xrang = range(traps[,1])
+        diff = diff(xrang)
+        xlim =  c(xrang[1] - diff,xrang[2] + diff)
+    }
+    if(is.null(ylim)){
+        yrang = range(traps[,2])
+        diff = diff(yrang)
+        ylim =  c(yrang[1] - diff,yrang[2] + diff)
+    }
+    traps <- cbind(traps$x,traps$y)
+    capt <- capt.hist$bincapt[id,]
+    plot.new()
+    plot.window(xlim = xlim, ylim = ylim, asp = 1)
+    box()
+    if (show.axes){
+            axis(1)
+            axis(2)
+        }
+    points(traps, col = 1, pch = 4, lwd = 2)
+    points(traps[capt == 1, , drop = FALSE], col = 1, cex = 2, lwd = 2)
+    if("bearing"%in%names(capt.hist) & !("dist"%in%names(capt.hist))){
+        bearing = capt.hist$bearing[id, ]
+        arrow.length = 0.05*min(c(diff(range(xlim)), diff(range(ylim))))
+        bearing.capt = bearing[capt == 1]
+        trappos = traps[which(capt == 1), , drop = FALSE]
+        sinb = sin(bearing.capt)*arrow.length
+        cosb = cos(bearing.capt)*arrow.length
+        arrows(trappos[, 1], trappos[, 2], trappos[, 1] + sinb, trappos[, 2] + cosb,
+               length = 0.1, col = 1, lwd = 2)
+    }
+    if("dist"%in%names(capt.hist) & !("bearing"%in%names(capt.hist))){
+        distance = capt.hist$dist[id, ]
+        dist.capt = distance[ capt == 1]
+        trappos = traps[which(capt == 1), , drop = FALSE]
+        for (i in 1:nrow(trappos)){
+            centre = trappos[i, ]
+            radius = dist.capt[i]
+            circles(as.numeric(centre), radius, col = 1, lwd = 2)
+        }
+    }
+    if("dist"%in%names(capt.hist) & "bearing"%in%names(capt.hist)){
+        bearing = capt.hist$bearing[id, ]
+        distance = capt.hist$dist[id, ]
+        arrow.length = distance[ capt == 1]
+        bearing.capt = bearing[capt == 1]
+        trappos = traps[which(capt == 1), , drop = FALSE]
+        sinb = sin(bearing.capt)*arrow.length
+        cosb = cos(bearing.capt)*arrow.length
+        arrows(trappos[, 1], trappos[, 2], trappos[, 1] + sinb, trappos[, 2] + cosb,
+               length = 0.1, col = 1, lwd = 2)
+    }
+}
+
