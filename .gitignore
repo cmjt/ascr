@@ -9,6 +9,7 @@ src/block.o
 src/funs.o
 src/secr_nll.o
 inst/shiny-examples/ascr/text/details.Rmd
+inst/shiny-examples/ascr/text/ascr.Rmd
 docs/*.png
 docs/my-style.sty
 
