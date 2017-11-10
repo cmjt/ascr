@@ -55,6 +55,9 @@ shinyUI(fluidPage(
                          choices = c("Degrees" = "bd",
                                      "Radians" = "rad"),
                          selected = "rad",inline = TRUE),
+            numericInput("show.call.num", "Choose call number to display in location plot:",
+                         min = 1, max = 1000,step = 1,
+                         value = 1),
             h3(icon("puzzle-piece"),tags$b("Build mask")),
             ## Input: integer of mask buffer in meters (this is updated based on trap info when file is loaded)
             sliderInput("buffer", "Choose mask buffer (m):",
@@ -153,7 +156,13 @@ shinyUI(fluidPage(
         mainPanel(
             tabsetPanel(type = "tabs",
                         tabPanel(h4(icon("pencil"), tags$b("Details")),
-                                 includeMarkdown(file.path("text", "details.md"))),
+                                 tabsetPanel(
+                                     tabPanel(h4(icon("pencil-square-o"),tags$b("How-to")),
+                                              includeMarkdown(file.path("text", "details.md"))),
+                                     tabPanel(h4(icon("info-circle"),tags$b("ascr")),
+                                              includeMarkdown(file.path("text", "ascr.md")))
+                                     )),
+                                 
                         tabPanel( h4(icon("bar-chart"), tags$b("Data")),
                                  tabsetPanel(
                                      tabPanel(h5(icon("map-marker"), tags$b("Traps")),
@@ -172,7 +181,11 @@ shinyUI(fluidPage(
                                                          tableOutput("detections")),
                                                   column(width = 4, 
                                                          h4(icon("map-pin"),"Capture history matrix"),
-                                                         tableOutput("capt.hist")))))),
+                                                         tableOutput("capt.hist")))),
+                                     tabPanel(h5(icon("map-signs"),tags$b("Traps & detections")),
+                                              column(width = 12, align = "center",
+                                                     plotOutput( height = "700px",width = "700px","show")))
+                                 )),
                         tabPanel(h4(icon("puzzle-piece"), tags$b("Mask")),
                                  column(width = 12, align="center",
                                         withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
