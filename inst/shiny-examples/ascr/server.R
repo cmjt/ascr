@@ -458,8 +458,15 @@ shinyServer(function(input, output,session) {
     })
     output$detfn <- renderPlot({
         fit <- fit()
-            if(class(fit)[1]=="ascr"){
-                show.detfn(fit)
+        if(class(fit)[1]=="ascr"){
+            detfn <- fit$args$detfn
+            pars <- get.par(fit, pars = fit$detpars, cutoff = fit$fit.types["ss"],as.list = TRUE)
+            buffer <- attr(get.mask(fit), "buffer")
+            probs <- calc.detfn(buffer, detfn = detfn, pars = pars,ss.link =fit$args$ss.opts$ss.link)
+            show.detfn(fit)
+            if(probs >= 0.1){
+                legend("center", bty = "n",paste("The detection probability at the mask buffer of ", buffer, "m is", round(probs,3), "(i.e., non-zero), perhaps increase mask buffer."),cex = 0.7,text.col = "red")
+            }
             }else{
                 plot(1,1,col="white",axes = FALSE,xlab = "",ylab = "")
                 text(1,1,paste("convergence issues try advanced options"),col = "grey")
