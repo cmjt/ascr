@@ -47,5 +47,5 @@ distance, *s*. The mask is then a grid of points, all of which are
 within distance *b* of at least one detector, and are separated from one
 another by distance *s* It is sensible to choose *b* as the maximum
 distance at which a detection is feasibly possible. This is clearly
-dependent on the species being detected (i.e., a distance of $2km might
-be feasible for a gibbon but not a moss frog).
+dependent on the species being detected (i.e., a distance of ∼2*k**m*
+might be feasible for a gibbon but not a moss frog).
