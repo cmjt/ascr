@@ -187,9 +187,13 @@ shinyUI(fluidPage(
                                                      plotOutput( height = "700px",width = "700px","show")))
                                  )),
                         tabPanel(h4(icon("puzzle-piece"), tags$b("Mask")),
-                                 column(width = 12, align="center",
-                                        withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
-                                 ),
+                                 fluidRow(
+                                     column(width = 12, align="center",
+                                            textOutput("maskinfo")
+                                         )),
+                                     column(width = 12, align="center",
+                                            withSpinner(plotOutput("maskPlot"),type = 5,color = "#D3D3D3"))
+                                ),
                         tabPanel(h4(icon("cogs"), tags$b("Model")),
                                  tabsetPanel(
                                      tabPanel(h5(icon("area-chart"), tags$b("Output")),

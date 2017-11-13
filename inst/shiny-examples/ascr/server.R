@@ -271,6 +271,10 @@ shinyServer(function(input, output,session) {
         show.mask(mask,traps)
         
     },width = 500, height = 500)
+    ## print out mask buffet info
+    output$maskinfo <- renderText({
+        paste("This mask is assuming that a distance of ",input$buffer, "meters is the maximum distance at which a detection is feasibly possible")
+    })
     ## chose which parameters of which detection function to fit, conditional numeric input for fixing param values
     output$fixedParamSelection <- renderUI({
         params.fix <- cbind(c("g0","sigma","g0","sigma","z","shape","scale"),
